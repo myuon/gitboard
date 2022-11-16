@@ -1,0 +1,34 @@
+import { css } from "@emotion/react";
+import { Link, Outlet } from "react-router-dom";
+
+export const IndexLayout = () => {
+  return (
+    <div
+      css={css`
+        display: grid;
+        gap: 16px;
+      `}
+    >
+      <nav>
+        <ul
+          css={css`
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            list-style: none;
+          `}
+        >
+          <li>
+            <Link to="/">INDEX</Link>
+          </li>
+          <li>
+            <Link to="/login">LOGIN</Link>
+          </li>
+        </ul>
+      </nav>
+      <main>
+        <Outlet />
+      </main>
+    </div>
+  );
+};
