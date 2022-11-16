@@ -30,7 +30,7 @@
   "scripts": {
     "dev": "nodemon --watch './src/**/*.*' --watch index.ts --exec \"yarn start\"",
     "build": "tsc",
-    "start": "tsx index.ts | pino-pretty",
+    "start": "GOOGLE_APPLICATION_CREDENTIALS=../.secrets/serviceaccountkey.json tsx index.ts | pino-pretty",
     "lint": "eslint .",
     "format": "eslint . --fix",
     "postformat": "prettier --write ."

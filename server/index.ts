@@ -7,12 +7,8 @@ import { newRouter } from "./src/router";
 import * as admin from "firebase-admin";
 
 const app = new Koa();
-admin.initializeApp({
-  credential: admin.credential.cert(
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    require("../.secrets/serviceaccountkey.json")
-  ),
-});
+
+admin.initializeApp({});
 const auth = admin.auth();
 
 app.use(logger());
