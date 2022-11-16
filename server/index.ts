@@ -5,6 +5,15 @@ import { authJwt } from "./src/middleware/authJwt";
 import { serveStaticProd } from "./src/middleware/serve";
 import { newRouter } from "./src/router";
 import * as admin from "firebase-admin";
+import { DataSource } from "typeorm";
+
+const dataSource = new DataSource({
+  type: "sqlite",
+  database: path.join(__dirname, "db.sqlite"),
+  entities: [],
+  logging: true,
+  synchronize: true,
+});
 
 const app = new Koa();
 
@@ -28,5 +37,11 @@ const router = newRouter({
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-app.listen(3000);
-console.log(`✨ Server running on http://localhost:3000`);
+const start = async () => {
+  await dataSource.initialize();
+
+  app.listen(3000);
+  console.log(`✨ Server running on http://localhost:3000`);
+};
+
+start();
