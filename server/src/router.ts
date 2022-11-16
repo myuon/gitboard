@@ -2,6 +2,7 @@ import koaBody from "koa-body";
 import Router, { IRouterOptions } from "koa-router";
 import { z } from "zod";
 import { schemaForType } from "./helper/zod";
+import { requireAuth } from "./middleware/authJwt";
 
 export const newRouter = (options?: IRouterOptions) => {
   const router = new Router(options);
@@ -9,7 +10,7 @@ export const newRouter = (options?: IRouterOptions) => {
   router.get("/hello", async (ctx) => {
     ctx.body = "Hello World!";
   });
-  router.post("/echo", koaBody(), async (ctx) => {
+  router.post("/echo", requireAuth(), koaBody(), async (ctx) => {
     interface EchoInput {
       message: string;
     }
