@@ -3,6 +3,7 @@ import Router, { IRouterOptions } from "koa-router";
 import { z } from "zod";
 import { ContextState } from "..";
 import { getRepositories } from "./api/repository";
+import { RepositoryTable } from "./db/repository";
 import { UserGitHubTokenTable } from "./db/userGitHubToken";
 import { schemaForType } from "./helper/zod";
 import { requireAuth } from "./middleware/authJwt";
@@ -91,8 +92,18 @@ export const newRouter = (options?: IRouterOptions) => {
           process.env.GITHUB_TOKEN,
           relation.owner
         );
-        repos.organization?.repositories.nodes?.forEach((repo) => {
-          console.log(repo?.name);
+        repos.organization?.repositories.nodes?.map(async (repo) => {
+          if (!repo) {
+            return;
+          }
+
+          await ctx.state.app.repositoryTable.save(
+            RepositoryTable.fromModel({
+              id: repo.id,
+              name: repo.name,
+              owner: relation.owner,
+            })
+          );
         });
       })
     );

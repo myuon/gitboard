@@ -9,22 +9,25 @@ import * as admin from "firebase-admin";
 import { DataSource } from "typeorm";
 import { UserGitHubTokenTable } from "./src/db/userGitHubToken";
 import { UserOwnerRelationTable } from "./src/db/userOwnerRelationTable";
+import { RepositoryTable } from "./src/db/repository";
 
 const dataSource = new DataSource({
   type: "sqlite",
   database: path.join(__dirname, "db.sqlite"),
-  entities: [UserGitHubTokenTable, UserOwnerRelationTable],
+  entities: [UserGitHubTokenTable, UserOwnerRelationTable, RepositoryTable],
   logging: true,
   synchronize: true,
 });
 const userGitHubTokenTable = dataSource.getRepository(UserGitHubTokenTable);
 const userOwnerRelationTable = dataSource.getRepository(UserOwnerRelationTable);
+const repositoryTable = dataSource.getRepository(RepositoryTable);
 
 export interface ContextState {
   auth: admin.auth.DecodedIdToken;
   app: {
     userGitHubTokenTable: typeof userGitHubTokenTable;
     userOwnerRelationTable: typeof userOwnerRelationTable;
+    repositoryTable: typeof repositoryTable;
   };
 }
 
@@ -48,6 +51,7 @@ app.use(async (ctx, next) => {
   ctx.state.app = {
     userGitHubTokenTable,
     userOwnerRelationTable,
+    repositoryTable,
   };
 
   await next();
