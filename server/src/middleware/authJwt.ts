@@ -1,5 +1,6 @@
 import { Auth } from "firebase-admin/lib/auth/auth";
-import { Middleware } from "koa";
+import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
+import { Context, Middleware } from "koa";
 
 export const authJwt =
   (auth: Auth): Middleware =>
@@ -19,10 +20,11 @@ export const authJwt =
     await next();
   };
 
-export const requireAuth = (): Middleware => async (ctx, next) => {
-  if (!ctx.state.auth) {
-    ctx.throw(401, "Unauthorized");
-  }
+export const requireAuth =
+  (): Middleware<{ auth: DecodedIdToken }, Context> => async (ctx, next) => {
+    if (!ctx.state.auth) {
+      ctx.throw(401, "Unauthorized");
+    }
 
-  await next();
-};
+    await next();
+  };

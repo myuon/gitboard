@@ -7,8 +7,8 @@
     "strict": true,
     "skipLibCheck": true,
     "outDir": "../dist",
-    "resolveJsonModule": true,
     "experimentalDecorators": true,
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "emitDecoratorMetadata": true
   }
 }
