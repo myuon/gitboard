@@ -6,32 +6,30 @@ query GetPullRequests($owner: String!, $name: String!, $baseRefName: String!, $a
       orderBy: {field: CREATED_AT, direction: DESC}
       after: $after
     ) {
-      edges {
-        node {
-          id
-          number
-          title
-          state
-          commits(first: 100) {
-            nodes {
-              commit {
-                id
-                author {
-                  name
-                }
-                committedDate
-                message
-                oid
-                url
+      nodes {
+        id
+        number
+        title
+        state
+        commits(first: 100) {
+          nodes {
+            commit {
+              id
+              author {
+                name
               }
+              committedDate
+              message
+              oid
+              url
             }
           }
-          url
-          author {
-            login
-          }
-          closedAt
         }
+        url
+        author {
+          login
+        }
+        closedAt
       }
       pageInfo {
         endCursor

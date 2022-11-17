@@ -140,25 +140,25 @@ export const newRouter = (options?: IRouterOptions) => {
     const endCursor = prs.repository?.pullRequests.pageInfo.endCursor;
 
     await Promise.all(
-      prs.repository?.pullRequests.edges?.map(async (pullRequest) => {
-        if (!pullRequest || !pullRequest.node || !pullRequest.node.author) {
+      prs.repository?.pullRequests.nodes?.map(async (pullRequest) => {
+        if (!pullRequest || !pullRequest.author) {
           return;
         }
 
         await ctx.state.app.pullRequestTable.save(
           PullRequestTable.fromModel({
-            id: pullRequest.node.id,
-            number: pullRequest.node.number,
-            title: pullRequest.node.title,
-            state: pullRequest.node.state,
-            url: pullRequest.node.url,
-            createdBy: pullRequest.node.author.login,
-            closedAt: pullRequest.node.closedAt,
+            id: pullRequest.id,
+            number: pullRequest.number,
+            title: pullRequest.title,
+            state: pullRequest.state,
+            url: pullRequest.url,
+            createdBy: pullRequest.author.login,
+            closedAt: pullRequest.closedAt,
           })
         );
 
         await Promise.all(
-          pullRequest.node.commits.nodes?.map(async (node) => {
+          pullRequest.commits.nodes?.map(async (node) => {
             if (!node || !node.commit.author) {
               return;
             }
@@ -174,14 +174,10 @@ export const newRouter = (options?: IRouterOptions) => {
               })
             );
 
-            if (!pullRequest.node) {
-              return;
-            }
-
             await ctx.state.app.commitPullRequestRelationTable.save(
               CommitPullRequestRelationTable.fromModel({
                 commitId: node.commit.id,
-                pullRequestId: pullRequest.node.id,
+                pullRequestId: pullRequest.id,
               })
             );
           }) ?? []
