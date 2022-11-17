@@ -22,6 +22,9 @@ export const IndexLayout = () => {
             <Link to="/">INDEX</Link>
           </li>
           <li>
+            <Link to="/import">IMPORT</Link>
+          </li>
+          <li>
             <Link to="/login">LOGIN</Link>
           </li>
         </ul>

@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { LoginPage } from "./pages/LoginPage";
 import { IndexPage } from "./pages/IndexPage";
 import { IndexLayout } from "./layouts/IndexLayout";
+import { ImportPage } from "./pages/ImportPage";
 
 const router = createBrowserRouter([
   {
@@ -11,6 +12,10 @@ const router = createBrowserRouter([
       {
         path: "/login",
         element: <LoginPage />,
+      },
+      {
+        path: "/import",
+        element: <ImportPage />,
       },
       {
         index: true,

@@ -2,6 +2,7 @@ import koaBody from "koa-body";
 import Router, { IRouterOptions } from "koa-router";
 import { z } from "zod";
 import { ContextState } from "..";
+import { getRepositories } from "./api/repository";
 import { UserGitHubTokenTable } from "./db/userGitHubToken";
 import { schemaForType } from "./helper/zod";
 import { requireAuth } from "./middleware/authJwt";
@@ -72,6 +73,31 @@ export const newRouter = (options?: IRouterOptions) => {
       ctx.throw(400, result.error);
       return;
     }
+  });
+
+  router.post("/import/repository", async (ctx) => {
+    const userId = "224NHwAGI5QjUi0fJj5CUwujO0L2";
+
+    const relations = (
+      await ctx.state.app.userOwnerRelationTable.find({
+        where: {
+          userId,
+        },
+      })
+    ).map((t) => t.toModel());
+    await Promise.all(
+      relations.map(async (relation) => {
+        const repos = await getRepositories(
+          process.env.GITHUB_TOKEN,
+          relation.owner
+        );
+        repos.organization?.repositories.nodes?.forEach((repo) => {
+          console.log(repo?.name);
+        });
+      })
+    );
+
+    ctx.status = 204;
   });
 
   return router;

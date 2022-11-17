@@ -1,0 +1,10 @@
+query GetRepositories($login: String!) {
+  organization(login: $login) {
+    id
+    repositories(first: 50, orderBy: {field: PUSHED_AT, direction: DESC}) {
+      nodes {
+        name
+      }
+    }
+  }
+}
