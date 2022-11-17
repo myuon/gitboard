@@ -12,11 +12,15 @@ export class RepositoryTable {
   @Column()
   name: string;
 
+  @Column({ nullable: true })
+  defaultBranchName?: string;
+
   static fromModel(model: Repository): RepositoryTable {
     const record = new RepositoryTable();
     record.id = model.id;
     record.owner = model.owner;
     record.name = model.name;
+    record.defaultBranchName = model.defaultBranchName;
 
     return record;
   }
@@ -26,6 +30,7 @@ export class RepositoryTable {
       id: this.id,
       owner: this.owner,
       name: this.name,
+      defaultBranchName: this.defaultBranchName,
     };
   }
 }

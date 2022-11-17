@@ -4,6 +4,9 @@ query GetRepositories($login: String!) {
       nodes {
         name
         id
+        defaultBranchRef {
+          name
+        }
       }
     }
   }

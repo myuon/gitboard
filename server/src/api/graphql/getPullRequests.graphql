@@ -1,0 +1,41 @@
+query GetPullRequests($owner: String!, $name: String!, $baseRefName: String!, $after: String) {
+  repository(name: $name, owner: $owner) {
+    pullRequests(
+      baseRefName: $baseRefName
+      first: 10
+      orderBy: {field: CREATED_AT, direction: DESC}
+      after: $after
+    ) {
+      edges {
+        node {
+          id
+          number
+          title
+          state
+          commits(first: 100) {
+            nodes {
+              commit {
+                id
+                author {
+                  name
+                }
+                committedDate
+                message
+                oid
+                url
+              }
+            }
+          }
+          url
+          author {
+            login
+          }
+          closedAt
+        }
+      }
+      pageInfo {
+        endCursor
+      }
+    }
+  }
+}

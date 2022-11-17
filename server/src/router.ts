@@ -2,7 +2,11 @@ import koaBody from "koa-body";
 import Router, { IRouterOptions } from "koa-router";
 import { z } from "zod";
 import { ContextState } from "..";
+import { getPullRequests } from "./api/pullRequest";
 import { getRepositories } from "./api/repository";
+import { CommitTable } from "./db/commit";
+import { CommitPullRequestRelationTable } from "./db/commitPullRequestRelation";
+import { PullRequestTable } from "./db/pullRequest";
 import { RepositoryTable } from "./db/repository";
 import { UserGitHubTokenTable } from "./db/userGitHubToken";
 import { schemaForType } from "./helper/zod";
@@ -102,10 +106,87 @@ export const newRouter = (options?: IRouterOptions) => {
               id: repo.id,
               name: repo.name,
               owner: relation.owner,
+              defaultBranchName: repo.defaultBranchRef?.name,
             })
           );
         });
       })
+    );
+
+    ctx.status = 204;
+  });
+  router.post("/import/pullRequest/:id", async (ctx) => {
+    const repository = (
+      await ctx.state.app.repositoryTable.findOneBy({
+        id: ctx.params.id,
+      })
+    )?.toModel();
+    if (!repository) {
+      ctx.throw(404, "Repository not found");
+      return;
+    }
+    if (!repository.defaultBranchName) {
+      ctx.throw(404, "Repository defaultBranch not found");
+      return;
+    }
+
+    const prs = await getPullRequests(
+      process.env.GITHUB_TOKEN,
+      repository.owner,
+      repository.name,
+      repository.defaultBranchName,
+      null
+    );
+    const endCursor = prs.repository?.pullRequests.pageInfo.endCursor;
+
+    await Promise.all(
+      prs.repository?.pullRequests.edges?.map(async (pullRequest) => {
+        if (!pullRequest || !pullRequest.node || !pullRequest.node.author) {
+          return;
+        }
+
+        await ctx.state.app.pullRequestTable.save(
+          PullRequestTable.fromModel({
+            id: pullRequest.node.id,
+            number: pullRequest.node.number,
+            title: pullRequest.node.title,
+            state: pullRequest.node.state,
+            url: pullRequest.node.url,
+            createdBy: pullRequest.node.author.login,
+            closedAt: pullRequest.node.closedAt,
+          })
+        );
+
+        await Promise.all(
+          pullRequest.node.commits.nodes?.map(async (node) => {
+            if (!node || !node.commit.author) {
+              return;
+            }
+
+            await ctx.state.app.commitTable.save(
+              CommitTable.fromModel({
+                id: node.commit.id,
+                oid: node.commit.oid,
+                message: node.commit.message,
+                url: node.commit.url,
+                committedDate: node.commit.committedDate,
+                createdBy: node.commit.author.name ?? "",
+              })
+            );
+
+            if (!pullRequest.node) {
+              return;
+            }
+
+            await ctx.state.app.commitPullRequestRelationTable.save(
+              CommitPullRequestRelationTable.fromModel({
+                commitId: node.commit.id,
+                pullRequestId: pullRequest.node.id,
+              })
+            );
+          }) ?? []
+        );
+      }) ?? []
     );
 
     ctx.status = 204;
