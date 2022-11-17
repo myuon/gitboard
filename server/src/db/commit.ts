@@ -7,6 +7,9 @@ export class CommitTable {
   id: string;
 
   @Column()
+  owner: string;
+
+  @Column()
   oid: string;
 
   @Column()
@@ -24,6 +27,7 @@ export class CommitTable {
   static fromModel(model: Commit): CommitTable {
     const record = new CommitTable();
     record.id = model.id;
+    record.owner = model.owner;
     record.oid = model.oid;
     record.url = model.url;
     record.message = model.message;
@@ -36,6 +40,7 @@ export class CommitTable {
   toModel(): Commit {
     return {
       id: this.id,
+      owner: this.owner,
       oid: this.oid,
       url: this.url,
       message: this.message,

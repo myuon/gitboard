@@ -1,5 +1,6 @@
 import koaBody from "koa-body";
 import Router, { IRouterOptions } from "koa-router";
+import { Between } from "typeorm";
 import { z } from "zod";
 import { ContextState } from "..";
 import { getPullRequests } from "./api/pullRequest";
@@ -80,6 +81,56 @@ export const newRouter = (options?: IRouterOptions) => {
     }
   });
 
+  router.post("/pullRequest/search", koaBody(), async (ctx) => {
+    interface Input {
+      createdAtSpan: {
+        start: string;
+        end: string;
+      };
+    }
+    const schema = schemaForType<Input>()(
+      z.object({
+        createdAtSpan: z.object({
+          start: z.string(),
+          end: z.string(),
+        }),
+      })
+    );
+    const result = schema.safeParse(ctx.request.body);
+    if (!result.success) {
+      ctx.throw(400, result.error);
+      return;
+    }
+
+    const ownerRelation = (
+      await ctx.state.app.userOwnerRelationTable.findOneBy({
+        userId: ctx.state.auth.uid,
+      })
+    )?.toModel();
+    if (!ownerRelation) {
+      ctx.throw(401, "unauthorized");
+      return;
+    }
+    const repoIds = (
+      await ctx.state.app.repositoryTable.findBy({
+        owner: ownerRelation.owner,
+      })
+    )
+      .map((repo) => repo.toModel())
+      .map((repo) => repo.id);
+
+    const pullRequests = (
+      await ctx.state.app.pullRequestTable.findBy({
+        createdAt: Between(
+          result.data.createdAtSpan.start,
+          result.data.createdAtSpan.end
+        ),
+      })
+    ).map((pr) => pr.toModel());
+
+    ctx.body = pullRequests;
+  });
+
   router.post("/import/repository", async (ctx) => {
     const userId = "224NHwAGI5QjUi0fJj5CUwujO0L2";
 
@@ -148,6 +199,8 @@ export const newRouter = (options?: IRouterOptions) => {
         await ctx.state.app.pullRequestTable.save(
           PullRequestTable.fromModel({
             id: pullRequest.id,
+            owner: repository.owner,
+            repositoryId: repository.id,
             number: pullRequest.number,
             title: pullRequest.title,
             state: pullRequest.state,
@@ -168,6 +221,7 @@ export const newRouter = (options?: IRouterOptions) => {
             await ctx.state.app.commitTable.save(
               CommitTable.fromModel({
                 id: node.commit.id,
+                owner: repository.owner,
                 oid: node.commit.oid,
                 message: node.commit.message,
                 url: node.commit.url,
