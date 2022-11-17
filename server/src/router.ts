@@ -154,6 +154,8 @@ export const newRouter = (options?: IRouterOptions) => {
             url: pullRequest.url,
             createdBy: pullRequest.author.login,
             closedAt: pullRequest.closedAt,
+            createdAt: pullRequest.createdAt,
+            updatedAt: pullRequest.updatedAt,
           })
         );
 

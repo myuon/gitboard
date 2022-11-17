@@ -22,7 +22,13 @@ export class PullRequestTable {
   createdBy: string;
 
   @Column()
-  closedAt?: string;
+  closedAt: string;
+
+  @Column()
+  createdAt: string;
+
+  @Column()
+  updatedAt: string;
 
   static fromModel(model: PullRequest): PullRequestTable {
     const record = new PullRequestTable();
@@ -33,6 +39,8 @@ export class PullRequestTable {
     record.url = model.url;
     record.createdBy = model.createdBy;
     record.closedAt = model.closedAt;
+    record.createdAt = model.createdAt;
+    record.updatedAt = model.updatedAt;
 
     return record;
   }
@@ -46,6 +54,8 @@ export class PullRequestTable {
       url: this.url,
       createdBy: this.createdBy,
       closedAt: this.closedAt,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
     };
   }
 }

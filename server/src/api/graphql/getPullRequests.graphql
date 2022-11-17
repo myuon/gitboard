@@ -30,6 +30,8 @@ query GetPullRequests($owner: String!, $name: String!, $baseRefName: String!, $a
           login
         }
         closedAt
+        createdAt
+        updatedAt
       }
       pageInfo {
         endCursor

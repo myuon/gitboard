@@ -5,5 +5,7 @@ export interface PullRequest {
   state: string;
   url: string;
   createdBy: string;
-  closedAt?: string;
+  closedAt: string;
+  createdAt: string;
+  updatedAt: string;
 }
