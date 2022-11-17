@@ -111,16 +111,10 @@ export const newRouter = (options?: IRouterOptions) => {
       ctx.throw(401, "unauthorized");
       return;
     }
-    const repoIds = (
-      await ctx.state.app.repositoryTable.findBy({
-        owner: ownerRelation.owner,
-      })
-    )
-      .map((repo) => repo.toModel())
-      .map((repo) => repo.id);
 
     const pullRequests = (
       await ctx.state.app.pullRequestTable.findBy({
+        owner: ownerRelation.owner,
         createdAt: Between(
           result.data.createdAtSpan.start,
           result.data.createdAtSpan.end
