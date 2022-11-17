@@ -1,4 +1,4 @@
-import { getAuthToken } from "../api/firebase";
+import { auth, getAuthToken } from "../api/firebase";
 
 export const IndexPage = () => {
   getAuthToken().then((token) => {

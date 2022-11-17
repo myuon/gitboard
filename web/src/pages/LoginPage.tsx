@@ -5,7 +5,13 @@ const provider = new GithubAuthProvider();
 
 export const LoginPage = () => {
   return (
-    <button onClick={() => signInWithPopup(auth, provider)}>
+    <button
+      onClick={async () => {
+        const result = await signInWithPopup(auth, provider);
+        console.log(result);
+        console.log(GithubAuthProvider.credentialFromResult(result));
+      }}
+    >
       Login with GitHub
     </button>
   );

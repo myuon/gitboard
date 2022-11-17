@@ -29,5 +29,23 @@ export const newRouter = (options?: IRouterOptions) => {
     ctx.body = result.data.message;
   });
 
+  router.post("/userOwnerRelation", requireAuth(), koaBody(), async (ctx) => {
+    interface Input {
+      userId: string;
+      owner: string;
+    }
+    const schema = schemaForType<Input>()(
+      z.object({
+        userId: z.string(),
+        owner: z.string(),
+      })
+    );
+    const result = schema.safeParse(ctx.request.body);
+    if (!result.success) {
+      ctx.throw(400, result.error);
+      return;
+    }
+  });
+
   return router;
 };

@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import Koa from "koa";
 import logger from "koa-pino-logger";
 import * as path from "path";
