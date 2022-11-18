@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import {
+  Between,
+  Column,
+  Entity,
+  In,
+  PrimaryColumn,
+  Repository,
+} from "typeorm";
 import { PullRequest } from "../../../shared/model/pullRequest";
 
 @Entity()
@@ -69,3 +76,29 @@ export class PullRequestTable {
     };
   }
 }
+
+export const newPullRequestRepository = (db: Repository<PullRequestTable>) => {
+  return {
+    findBy: async (where: {
+      owner: string[];
+      createdBy?: string;
+      createdAt: {
+        start: string;
+        end: string;
+      };
+    }) => {
+      const r = await db.findBy({
+        owner: In(where.owner),
+        createdBy: where.createdBy,
+        createdAt: Between(where.createdAt.start, where.createdAt.end),
+      });
+
+      return r.map((r) => r.toModel());
+    },
+    save: async (model: PullRequest) => {
+      const r = await db.save(PullRequestTable.fromModel(model));
+
+      return r.toModel();
+    },
+  };
+};

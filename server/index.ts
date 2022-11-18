@@ -7,12 +7,24 @@ import { serveStaticProd } from "./src/middleware/serve";
 import { newRouter } from "./src/router";
 import * as admin from "firebase-admin";
 import { DataSource } from "typeorm";
-import { UserGitHubTokenTable } from "./src/db/userGitHubToken";
-import { UserOwnerRelationTable } from "./src/db/userOwnerRelationTable";
-import { RepositoryTable } from "./src/db/repository";
-import { PullRequestTable } from "./src/db/pullRequest";
-import { CommitTable } from "./src/db/commit";
-import { CommitPullRequestRelationTable } from "./src/db/commitPullRequestRelation";
+import {
+  newUserGitHubTokenRepository,
+  UserGitHubTokenTable,
+} from "./src/db/userGitHubToken";
+import {
+  newUserOwnerRelationRepository,
+  UserOwnerRelationTable,
+} from "./src/db/userOwnerRelationTable";
+import { newRepositoryRepository, RepositoryTable } from "./src/db/repository";
+import {
+  newPullRequestRepository,
+  PullRequestTable,
+} from "./src/db/pullRequest";
+import { CommitTable, newCommitRepository } from "./src/db/commit";
+import {
+  CommitPullRequestRelationTable,
+  newCommitPullRequestRelationRepository,
+} from "./src/db/commitPullRequestRelation";
 
 const dataSource = new DataSource({
   type: "sqlite",
@@ -28,13 +40,21 @@ const dataSource = new DataSource({
   logging: true,
   synchronize: true,
 });
-const userGitHubTokenTable = dataSource.getRepository(UserGitHubTokenTable);
-const userOwnerRelationTable = dataSource.getRepository(UserOwnerRelationTable);
-const repositoryTable = dataSource.getRepository(RepositoryTable);
-const pullRequestTable = dataSource.getRepository(PullRequestTable);
-const commitTable = dataSource.getRepository(CommitTable);
-const commitPullRequestRelationTable = dataSource.getRepository(
-  CommitPullRequestRelationTable
+const userGitHubTokenTable = newUserGitHubTokenRepository(
+  dataSource.getRepository(UserGitHubTokenTable)
+);
+const userOwnerRelationTable = newUserOwnerRelationRepository(
+  dataSource.getRepository(UserOwnerRelationTable)
+);
+const repositoryTable = newRepositoryRepository(
+  dataSource.getRepository(RepositoryTable)
+);
+const pullRequestTable = newPullRequestRepository(
+  dataSource.getRepository(PullRequestTable)
+);
+const commitTable = newCommitRepository(dataSource.getRepository(CommitTable));
+const commitPullRequestRelationTable = newCommitPullRequestRelationRepository(
+  dataSource.getRepository(CommitPullRequestRelationTable)
 );
 
 export interface ContextState {

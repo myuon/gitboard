@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, PrimaryColumn, Repository } from "typeorm";
 import { UserOwnerRelation } from "../../../shared/model/userOwnerRelation";
 
 @Entity()
@@ -29,3 +29,20 @@ export class UserOwnerRelationTable {
     };
   }
 }
+
+export const newUserOwnerRelationRepository = (
+  db: Repository<UserOwnerRelationTable>
+) => {
+  return {
+    findBy: async (where: { userId: string }) => {
+      const r = await db.findBy(where);
+
+      return r.map((r) => r.toModel());
+    },
+    save: async (model: UserOwnerRelation) => {
+      const r = await db.save(UserOwnerRelationTable.fromModel(model));
+
+      return r.toModel();
+    },
+  };
+};

@@ -1,5 +1,6 @@
 import { Column, Entity, PrimaryColumn } from "typeorm";
 import { Repository } from "../../../shared/model/repository";
+import { Repository as OrmRepository } from "typeorm";
 
 @Entity()
 export class RepositoryTable {
@@ -34,3 +35,16 @@ export class RepositoryTable {
     };
   }
 }
+
+export const newRepositoryRepository = (db: OrmRepository<RepositoryTable>) => {
+  return {
+    findOneBy: async (where: { id: string }) => {
+      const r = await db.findOneBy(where);
+
+      return r?.toModel();
+    },
+    save: async (model: Repository) => {
+      return db.save(RepositoryTable.fromModel(model));
+    },
+  };
+};

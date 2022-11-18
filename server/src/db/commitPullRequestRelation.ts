@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn } from "typeorm";
+import { Entity, PrimaryColumn, Repository } from "typeorm";
 import { CommitPullRequestRelation } from "../../../shared/model/commitPullRequstRelation";
 
 @Entity()
@@ -26,3 +26,13 @@ export class CommitPullRequestRelationTable {
     };
   }
 }
+
+export const newCommitPullRequestRelationRepository = (
+  db: Repository<CommitPullRequestRelationTable>
+) => {
+  return {
+    save: async (model: CommitPullRequestRelation) => {
+      return db.save(CommitPullRequestRelationTable.fromModel(model));
+    },
+  };
+};

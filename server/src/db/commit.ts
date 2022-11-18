@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, PrimaryColumn, Repository } from "typeorm";
 import { Commit } from "../../../shared/model/commit";
 
 @Entity()
@@ -49,3 +49,11 @@ export class CommitTable {
     };
   }
 }
+
+export const newCommitRepository = (db: Repository<CommitTable>) => {
+  return {
+    save: async (model: Commit) => {
+      return db.save(CommitTable.fromModel(model));
+    },
+  };
+};

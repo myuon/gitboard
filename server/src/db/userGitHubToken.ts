@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, PrimaryColumn, Repository } from "typeorm";
 import { UserGitHubToken } from "../../../shared/model/userGitHubToken";
 
 @Entity()
@@ -33,3 +33,13 @@ export class UserGitHubTokenTable {
     };
   }
 }
+
+export const newUserGitHubTokenRepository = (
+  db: Repository<UserGitHubTokenTable>
+) => {
+  return {
+    save: async (model: UserGitHubToken) => {
+      return db.save(UserGitHubTokenTable.fromModel(model));
+    },
+  };
+};

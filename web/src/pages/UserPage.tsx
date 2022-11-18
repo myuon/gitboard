@@ -23,7 +23,7 @@ export const UserPage = () => {
         gap: 24px;
       `}
     >
-      <h1>{name}</h1>
+      <h2>{name}</h2>
 
       <ul
         css={css`
