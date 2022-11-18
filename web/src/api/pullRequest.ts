@@ -1,10 +1,10 @@
 import useSWR from "swr";
 import { getAuthToken } from "./firebase";
+import { PullRequest } from "../../../shared/model/pullRequest";
+import { SearchPullRequestInput } from "../../../shared/request/pullRequest";
 
-export const useSearchPullRequest = (input: {
-  createdAtSpan: { start: string; end: string };
-}) => {
-  return useSWR("/api/pullRequest/search", async (url) => {
+export const useSearchPullRequest = (input: SearchPullRequestInput) => {
+  return useSWR<PullRequest[]>("/api/pullRequest/search", async (url) => {
     const resp = await fetch(url, {
       headers: {
         "Content-Type": "application/json",

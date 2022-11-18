@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryColumn } from "typeorm";
-import { Commit } from "../model/commit";
+import { Commit } from "../../../shared/model/commit";
 
 @Entity()
 export class CommitTable {

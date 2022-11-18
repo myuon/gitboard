@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryColumn } from "typeorm";
-import { UserGitHubToken } from "../model/userGitHubToken";
+import { UserGitHubToken } from "../../../shared/model/userGitHubToken";
 
 @Entity()
 export class UserGitHubTokenTable {

@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryColumn } from "typeorm";
-import { PullRequest } from "../model/pullRequest";
+import { PullRequest } from "../../../shared/model/pullRequest";
 
 @Entity()
 export class PullRequestTable {

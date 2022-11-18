@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryColumn } from "typeorm";
-import { UserOwnerRelation } from "../model/userOwnerRelation";
+import { UserOwnerRelation } from "../../../shared/model/userOwnerRelation";
 
 @Entity()
 export class UserOwnerRelationTable {

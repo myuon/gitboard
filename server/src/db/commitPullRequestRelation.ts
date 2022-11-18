@@ -1,5 +1,5 @@
 import { Entity, PrimaryColumn } from "typeorm";
-import { CommitPullRequestRelation } from "../model/commitPullRequstRelation";
+import { CommitPullRequestRelation } from "../../../shared/model/commitPullRequstRelation";
 
 @Entity()
 export class CommitPullRequestRelationTable {

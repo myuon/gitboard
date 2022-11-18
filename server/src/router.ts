@@ -12,6 +12,7 @@ import { RepositoryTable } from "./db/repository";
 import { UserGitHubTokenTable } from "./db/userGitHubToken";
 import { schemaForType } from "./helper/zod";
 import { requireAuth } from "./middleware/authJwt";
+import { SearchPullRequestInput } from "../../shared/request/pullRequest";
 
 export const newRouter = (options?: IRouterOptions) => {
   const router = new Router<ContextState>(options);
@@ -82,13 +83,7 @@ export const newRouter = (options?: IRouterOptions) => {
   });
 
   router.post("/pullRequest/search", koaBody(), async (ctx) => {
-    interface Input {
-      createdAtSpan: {
-        start: string;
-        end: string;
-      };
-    }
-    const schema = schemaForType<Input>()(
+    const schema = schemaForType<SearchPullRequestInput>()(
       z.object({
         createdAtSpan: z.object({
           start: z.string(),

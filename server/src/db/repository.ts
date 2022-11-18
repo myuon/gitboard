@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryColumn } from "typeorm";
-import { Repository } from "../model/repository";
+import { Repository } from "../../../shared/model/repository";
 
 @Entity()
 export class RepositoryTable {
