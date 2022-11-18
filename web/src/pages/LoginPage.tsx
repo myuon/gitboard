@@ -1,5 +1,6 @@
 import { GithubAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth, getAuthToken } from "../api/firebase";
+import { getAuthToken } from "../api/auth";
+import { auth } from "../api/firebase";
 
 const provider = new GithubAuthProvider();
 

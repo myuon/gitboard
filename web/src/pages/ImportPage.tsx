@@ -1,5 +1,5 @@
 import { css } from "@emotion/react";
-import { getAuthToken } from "../api/firebase";
+import { getAuthToken } from "../api/auth";
 
 export const ImportPage = () => {
   return (

@@ -29,7 +29,7 @@ export const IndexPage = () => {
       >
         {prs?.map((pr) => (
           <div key={pr.id}>
-            #{pr.number} {pr.title}
+            <a href={pr.url}>#{pr.number}</a> {pr.title}
           </div>
         ))}
       </div>
