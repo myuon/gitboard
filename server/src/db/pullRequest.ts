@@ -95,6 +95,32 @@ export const newPullRequestRepository = (db: Repository<PullRequestTable>) => {
 
       return r.map((r) => r.toModel());
     },
+    findLeadTime: async (where: { owner: string[]; ids: string[] }) => {
+      const r = await db
+        .createQueryBuilder()
+        .select("pull_request_table.id", "id")
+        .addSelect("pull_request_table.closedAt", "closedAt")
+        .addSelect("MIN(commit_table.committedDate)", "firstCommitDate")
+        .from(PullRequestTable, "pull_request_table")
+        .innerJoin(
+          "commit_pull_request_relation_table",
+          "commit_pull_request_relation_table",
+          "pull_request_table.id = commit_pull_request_relation_table.pullRequestId"
+        )
+        .innerJoin(
+          "commit_table",
+          "commit_table",
+          "commit_pull_request_relation_table.commitId = commit_table.id"
+        )
+        .where("pull_request_table.owner in (:...owner)", {
+          owner: where.owner,
+        })
+        .andWhere("pull_request_table.id in (:...ids)", { ids: where.ids })
+        .groupBy("pull_request_table.id")
+        .getRawMany();
+
+      return r;
+    },
     save: async (model: PullRequest) => {
       const r = await db.save(PullRequestTable.fromModel(model));
 

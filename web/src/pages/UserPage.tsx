@@ -2,7 +2,10 @@ import { css } from "@emotion/react";
 import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
 import { Repository } from "../../../shared/model/repository";
-import { useSearchPullRequest } from "../api/pullRequest";
+import {
+  useSearchPullRequest,
+  useSearchPullRequestLeadTime,
+} from "../api/pullRequest";
 import { useSearchRepository } from "../api/repository";
 import { assertIsDefined } from "../helper/assertIsDefined";
 
@@ -25,6 +28,22 @@ export const UserPage = () => {
     return acc;
   }, {} as Record<string, Repository>);
 
+  const { data: prLeadTimes } = useSearchPullRequestLeadTime({
+    ids: prs?.map((pr) => pr.id) ?? [],
+  });
+  const prLeadTimeById = prLeadTimes?.reduce((acc, prLeadTime) => {
+    if (prLeadTime.closedAt) {
+      acc[prLeadTime.id] = {
+        leadTime: dayjs(prLeadTime.closedAt).diff(
+          dayjs(prLeadTime.firstCommitDate),
+          "hour"
+        ),
+      };
+    }
+
+    return acc;
+  }, {} as Record<string, { leadTime: number }>);
+
   return (
     <div
       css={css`
@@ -43,6 +62,7 @@ export const UserPage = () => {
       >
         {prs?.map((pr) => {
           const repo = repositoryById?.[pr.repositoryId];
+          const leadTime = prLeadTimeById?.[pr.id];
 
           return (
             <li
@@ -60,7 +80,8 @@ export const UserPage = () => {
               </h3>
               <p>
                 {repo?.owner}/{repo?.name}・
-                {dayjs(pr.createdAt).format("YYYY-MM-DD")}
+                {dayjs(pr.createdAt).format("YYYY-MM-DD")}・{leadTime?.leadTime}{" "}
+                hrs
               </p>
             </li>
           );

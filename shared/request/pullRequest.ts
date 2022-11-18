@@ -5,3 +5,7 @@ export interface SearchPullRequestInput {
     end: string;
   };
 }
+
+export interface SearchPullRequestLeadTimeInput {
+  ids?: string[];
+}

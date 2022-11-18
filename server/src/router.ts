@@ -6,7 +6,10 @@ import { getPullRequests } from "./api/pullRequest";
 import { getRepositories } from "./api/repository";
 import { schemaForType } from "./helper/zod";
 import { requireAuth } from "./middleware/authJwt";
-import { SearchPullRequestInput } from "../../shared/request/pullRequest";
+import {
+  SearchPullRequestInput,
+  SearchPullRequestLeadTimeInput,
+} from "../../shared/request/pullRequest";
 import { SearchRepositoryInput } from "../../shared/request/repository";
 
 export const newRouter = (options?: IRouterOptions) => {
@@ -148,6 +151,31 @@ export const newRouter = (options?: IRouterOptions) => {
     });
 
     ctx.body = pullRequests;
+  });
+  router.post("/pullRequest/leadTime/search", koaBody(), async (ctx) => {
+    const schema = schemaForType<SearchPullRequestLeadTimeInput>()(
+      z.object({
+        ids: z.array(z.string()),
+      })
+    );
+    const result = schema.safeParse(ctx.request.body);
+    if (!result.success) {
+      ctx.throw(400, result.error);
+      return;
+    }
+
+    const ownerRelations = await ctx.state.app.userOwnerRelationTable.findBy({
+      userId: ctx.state.auth.uid,
+    });
+    if (ownerRelations.length === 0) {
+      ctx.throw(401, "unauthorized");
+      return;
+    }
+
+    ctx.body = await ctx.state.app.pullRequestTable.findLeadTime({
+      owner: ownerRelations.map((r) => r.owner),
+      ids: result.data.ids,
+    });
   });
 
   router.post("/import/repository", async (ctx) => {

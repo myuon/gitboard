@@ -1,11 +1,15 @@
-import { Entity, PrimaryColumn, Repository } from "typeorm";
+import { Entity, OneToOne, PrimaryColumn, Repository } from "typeorm";
 import { CommitPullRequestRelation } from "../../../shared/model/commitPullRequstRelation";
+import { CommitTable } from "./commit";
+import { PullRequestTable } from "./pullRequest";
 
 @Entity()
 export class CommitPullRequestRelationTable {
+  @OneToOne(() => CommitTable)
   @PrimaryColumn()
   commitId: string;
 
+  @OneToOne(() => PullRequestTable)
   @PrimaryColumn()
   pullRequestId: string;
 
