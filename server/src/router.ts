@@ -85,6 +85,7 @@ export const newRouter = (options?: IRouterOptions) => {
   router.post("/pullRequest/search", koaBody(), async (ctx) => {
     const schema = schemaForType<SearchPullRequestInput>()(
       z.object({
+        createdBy: z.string().optional(),
         createdAtSpan: z.object({
           start: z.string(),
           end: z.string(),
@@ -110,6 +111,7 @@ export const newRouter = (options?: IRouterOptions) => {
     const pullRequests = (
       await ctx.state.app.pullRequestTable.findBy({
         owner: ownerRelation.owner,
+        createdBy: result.data.createdBy,
         createdAt: Between(
           result.data.createdAtSpan.start,
           result.data.createdAtSpan.end

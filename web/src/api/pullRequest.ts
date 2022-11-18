@@ -7,7 +7,7 @@ export const useSearchPullRequest = (input: SearchPullRequestInput) => {
   const { data: token } = useAuthToken();
 
   return useSWR<PullRequest[]>(
-    token ? [token, "/api/pullRequest/search"] : null,
+    token ? [token, "/api/pullRequest/search", input] : null,
     async () => {
       const resp = await fetch("/api/pullRequest/search", {
         headers: {
