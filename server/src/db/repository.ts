@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, In, PrimaryColumn } from "typeorm";
 import { Repository } from "../../../shared/model/repository";
 import { Repository as OrmRepository } from "typeorm";
 
@@ -42,6 +42,13 @@ export const newRepositoryRepository = (db: OrmRepository<RepositoryTable>) => {
       const r = await db.findOneBy(where);
 
       return r?.toModel();
+    },
+    findBy: async (where: { owner: string[] }) => {
+      const r = await db.findBy({
+        owner: In(where.owner),
+      });
+
+      return r.map((r) => r.toModel());
     },
     save: async (model: Repository) => {
       return db.save(RepositoryTable.fromModel(model));

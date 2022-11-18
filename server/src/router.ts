@@ -74,6 +74,20 @@ export const newRouter = (options?: IRouterOptions) => {
     }
   });
 
+  router.get("/repository", async (ctx) => {
+    const ownerRelations = await ctx.state.app.userOwnerRelationTable.findBy({
+      userId: ctx.state.auth.uid,
+    });
+    if (ownerRelations.length === 0) {
+      ctx.throw(401, "unauthorized");
+      return;
+    }
+
+    ctx.body = await ctx.state.app.repositoryTable.findBy({
+      owner: ownerRelations.map((r) => r.owner),
+    });
+  });
+
   router.post("/pullRequest/search", koaBody(), async (ctx) => {
     const schema = schemaForType<SearchPullRequestInput>()(
       z.object({

@@ -34,8 +34,8 @@ export class PullRequestTable {
   @Column()
   createdBy: string;
 
-  @Column()
-  closedAt: string;
+  @Column({ nullable: true })
+  closedAt?: string;
 
   @Column()
   createdAt: string;
