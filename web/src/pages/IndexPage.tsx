@@ -1,5 +1,8 @@
 import { css } from "@emotion/react";
 import dayjs from "dayjs";
+import { useMemo } from "react";
+import { Link } from "react-router-dom";
+import { PullRequest } from "../../../shared/model/pullRequest";
 import { useSearchPullRequest } from "../api/pullRequest";
 
 export const IndexPage = () => {
@@ -10,6 +13,19 @@ export const IndexPage = () => {
     },
   });
 
+  const prByCreatedBy = useMemo(
+    () =>
+      prs?.reduce((acc, pr) => {
+        if (!acc[pr.createdBy]) {
+          acc[pr.createdBy] = [];
+        }
+
+        acc[pr.createdBy].push(pr);
+        return acc;
+      }, {} as Record<string, PullRequest[]>),
+    [prs]
+  );
+
   return (
     <div
       css={css`
@@ -19,20 +35,40 @@ export const IndexPage = () => {
     >
       <h1>GitBoard</h1>
 
-      <h2>This Month</h2>
-
-      <div
+      <section
         css={css`
           display: grid;
-          gap: 8px;
+          gap: 16px;
         `}
       >
-        {prs?.map((pr) => (
-          <div key={pr.id}>
-            <a href={pr.url}>#{pr.number}</a> {pr.title}
-          </div>
-        ))}
-      </div>
+        <h2>This Month</h2>
+
+        <div
+          css={css`
+            display: grid;
+            gap: 8px;
+          `}
+        >
+          {Object.entries(prByCreatedBy ?? {}).map(([createdBy, prs]) => (
+            <div
+              key={createdBy}
+              css={css`
+                display: grid;
+                gap: 8px;
+              `}
+            >
+              <Link
+                to={`/user/${createdBy}`}
+                css={css`
+                  font-weight: bold;
+                `}
+              >
+                {createdBy} ({prs.length})
+              </Link>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 };
