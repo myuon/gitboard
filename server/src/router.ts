@@ -7,6 +7,7 @@ import { getRepositories } from "./api/repository";
 import { schemaForType } from "./helper/zod";
 import { requireAuth } from "./middleware/authJwt";
 import { SearchPullRequestInput } from "../../shared/request/pullRequest";
+import { SearchRepositoryInput } from "../../shared/request/repository";
 
 export const newRouter = (options?: IRouterOptions) => {
   const router = new Router<ContextState>(options);
@@ -85,6 +86,31 @@ export const newRouter = (options?: IRouterOptions) => {
 
     ctx.body = await ctx.state.app.repositoryTable.findBy({
       owner: ownerRelations.map((r) => r.owner),
+    });
+  });
+  router.post("/repository/search", koaBody(), async (ctx) => {
+    const schema = schemaForType<SearchRepositoryInput>()(
+      z.object({
+        ids: z.array(z.string()),
+      })
+    );
+    const result = schema.safeParse(ctx.request.body);
+    if (!result.success) {
+      ctx.throw(400, result.error);
+      return;
+    }
+
+    const ownerRelations = await ctx.state.app.userOwnerRelationTable.findBy({
+      userId: ctx.state.auth.uid,
+    });
+    if (ownerRelations.length === 0) {
+      ctx.throw(401, "unauthorized");
+      return;
+    }
+
+    ctx.body = await ctx.state.app.repositoryTable.findBy({
+      owner: ownerRelations.map((r) => r.owner),
+      ids: result.data.ids,
     });
   });
 

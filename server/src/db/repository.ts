@@ -43,8 +43,9 @@ export const newRepositoryRepository = (db: OrmRepository<RepositoryTable>) => {
 
       return r?.toModel();
     },
-    findBy: async (where: { owner: string[] }) => {
+    findBy: async (where: { ids?: string[]; owner: string[] }) => {
       const r = await db.findBy({
+        id: where.ids ? In(where.ids) : undefined,
         owner: In(where.owner),
       });
 

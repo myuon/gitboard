@@ -1,7 +1,9 @@
 import { css } from "@emotion/react";
 import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
+import { Repository } from "../../../shared/model/repository";
 import { useSearchPullRequest } from "../api/pullRequest";
+import { useSearchRepository } from "../api/repository";
 import { assertIsDefined } from "../helper/assertIsDefined";
 
 export const UserPage = () => {
@@ -15,6 +17,13 @@ export const UserPage = () => {
       end: dayjs().format("YYYY-MM-DD"),
     },
   });
+  const { data: repos } = useSearchRepository({
+    ids: prs?.map((pr) => pr.repositoryId) ?? [],
+  });
+  const repositoryById = repos?.reduce((acc, repo) => {
+    acc[repo.id] = repo;
+    return acc;
+  }, {} as Record<string, Repository>);
 
   return (
     <div
@@ -32,19 +41,30 @@ export const UserPage = () => {
           list-style: none;
         `}
       >
-        {prs?.map((pr) => (
-          <li
-            key={pr.id}
-            css={css`
-              display: grid;
-            `}
-          >
-            <h3>
-              #{pr.number} {pr.title}
-            </h3>
-            <p>{dayjs(pr.createdAt).format("YYYY-MM-DD")}</p>
-          </li>
-        ))}
+        {prs?.map((pr) => {
+          const repo = repositoryById?.[pr.repositoryId];
+
+          return (
+            <li
+              key={pr.id}
+              css={css`
+                display: grid;
+                gap: 4px;
+              `}
+            >
+              <h3>
+                <a href={pr.url} target="_blank" rel="noreferrer">
+                  #{pr.number}
+                </a>{" "}
+                {pr.title}
+              </h3>
+              <p>
+                {repo?.owner}/{repo?.name}・
+                {dayjs(pr.createdAt).format("YYYY-MM-DD")}
+              </p>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
