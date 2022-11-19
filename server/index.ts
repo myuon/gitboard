@@ -8,10 +8,6 @@ import { newRouter } from "./src/router";
 import * as admin from "firebase-admin";
 import { DataSource } from "typeorm";
 import {
-  newUserGitHubTokenRepository,
-  UserGitHubTokenTable,
-} from "./src/db/userGitHubToken";
-import {
   newUserOwnerRelationRepository,
   UserOwnerRelationTable,
 } from "./src/db/userOwnerRelationTable";
@@ -30,7 +26,6 @@ const dataSource = new DataSource({
   type: "sqlite",
   database: path.join(__dirname, "db.sqlite"),
   entities: [
-    UserGitHubTokenTable,
     UserOwnerRelationTable,
     RepositoryTable,
     PullRequestTable,
@@ -40,9 +35,6 @@ const dataSource = new DataSource({
   logging: true,
   synchronize: true,
 });
-const userGitHubTokenTable = newUserGitHubTokenRepository(
-  dataSource.getRepository(UserGitHubTokenTable)
-);
 const userOwnerRelationTable = newUserOwnerRelationRepository(
   dataSource.getRepository(UserOwnerRelationTable)
 );
@@ -60,7 +52,6 @@ const commitPullRequestRelationTable = newCommitPullRequestRelationRepository(
 export interface ContextState {
   auth: admin.auth.DecodedIdToken;
   app: {
-    userGitHubTokenTable: typeof userGitHubTokenTable;
     userOwnerRelationTable: typeof userOwnerRelationTable;
     repositoryTable: typeof repositoryTable;
     pullRequestTable: typeof pullRequestTable;
@@ -87,7 +78,6 @@ app.use(authJwt(auth));
 app.use(requireAuth());
 app.use(async (ctx, next) => {
   ctx.state.app = {
-    userGitHubTokenTable,
     userOwnerRelationTable,
     repositoryTable,
     pullRequestTable,

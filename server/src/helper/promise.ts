@@ -1,4 +1,5 @@
 export const collectAllSettledresult = <T>(arg: PromiseSettledResult<T>[]) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const errors: any[] = [];
   const data: T[] = [];
 

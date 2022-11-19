@@ -36,29 +36,6 @@ export const newRouter = (options?: IRouterOptions) => {
     ctx.body = result.data.message;
   });
 
-  router.put("/user/token", koaBody(), async (ctx) => {
-    interface Input {
-      token: string;
-    }
-    const schema = schemaForType<Input>()(
-      z.object({
-        token: z.string(),
-      })
-    );
-    const result = schema.safeParse(ctx.request.body);
-    if (!result.success) {
-      ctx.throw(400, result.error);
-      return;
-    }
-
-    await ctx.state.app.userGitHubTokenTable.save({
-      userId: ctx.state.auth.uid,
-      token: result.data.token,
-      updatedAt: Date.now(),
-    });
-
-    ctx.status = 204;
-  });
   router.post("/userOwnerRelation", koaBody(), async (ctx) => {
     interface Input {
       userId: string;
