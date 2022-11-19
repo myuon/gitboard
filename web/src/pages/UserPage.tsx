@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { Repository } from "../../../shared/model/repository";
 import { useSearchPullRequest } from "../api/pullRequest";
 import { useSearchRepository } from "../api/repository";
+import { average } from "../helper/array";
 import { assertIsDefined } from "../helper/assertIsDefined";
 
 export const UserPage = () => {
@@ -33,6 +34,57 @@ export const UserPage = () => {
       `}
     >
       <h2>{name}</h2>
+
+      <div
+        css={css`
+          display: flex;
+          gap: 24px;
+        `}
+      >
+        <div
+          css={css`
+            display: grid;
+            gap: 8px;
+          `}
+        >
+          <span># of PRs</span>
+          <span
+            css={css`
+              font-size: 28px;
+              font-weight: 500;
+            `}
+          >
+            {prs?.length}
+          </span>
+        </div>
+
+        <div
+          css={css`
+            display: grid;
+            gap: 8px;
+          `}
+        >
+          <span>Lead time (hrs, avg)</span>
+          <span
+            css={css`
+              font-size: 28px;
+              font-weight: 500;
+            `}
+          >
+            {prs
+              ? (
+                  average(
+                    prs
+                      .filter((p) => Boolean(p.leadTimeSec))
+                      .map((p) => p.leadTimeSec) as number[]
+                  ) /
+                  60 /
+                  60
+                ).toFixed(2)
+              : null}
+          </span>
+        </div>
+      </div>
 
       <ul
         css={css`
