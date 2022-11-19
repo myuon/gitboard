@@ -13,7 +13,7 @@ export const handlerImportRepository = async (
 ) => {
   const userId = "224NHwAGI5QjUi0fJj5CUwujO0L2";
 
-  const relations = await ctx.state.app.userOwnerRelationTable.findBy({
+  const relations = await ctx.state.app.userOwnerRelationTable.findByUserId({
     userId,
   });
   await Promise.all(

@@ -34,8 +34,13 @@ export const newUserOwnerRelationRepository = (
   db: Repository<UserOwnerRelationTable>
 ) => {
   return {
-    findBy: async (where: { userId: string }) => {
+    findByUserId: async (where: { userId: string }) => {
       const r = await db.findBy(where);
+
+      return r.map((r) => r.toModel());
+    },
+    findAll: async () => {
+      const r = await db.find();
 
       return r.map((r) => r.toModel());
     },
@@ -43,6 +48,10 @@ export const newUserOwnerRelationRepository = (
       const r = await db.save(UserOwnerRelationTable.fromModel(model));
 
       return r.toModel();
+    },
+    delete: async (model: UserOwnerRelation) => {
+      const record = UserOwnerRelationTable.fromModel(model);
+      await db.delete([record.owner, record.userId]);
     },
   };
 };

@@ -10,6 +10,14 @@ import {
   handlerImportPullRequest,
   handlerImportRepository,
 } from "./handler/import";
+import {
+  handlerAdminDeleteUserOwnerRelation,
+  handlerAdminSaveUserOwnerRelation,
+} from "./handler/userOwnerRelation";
+import {
+  DeleteUserOwnerRelationInput,
+  SaveUserOwnerRelationInput,
+} from "../../shared/request/userOwnerRelation";
 
 export const newRouter = (options?: IRouterOptions) => {
   const router = new Router<ContextState>(options);
@@ -55,9 +63,10 @@ export const newRouter = (options?: IRouterOptions) => {
   });
 
   router.get("/repository", async (ctx) => {
-    const ownerRelations = await ctx.state.app.userOwnerRelationTable.findBy({
-      userId: ctx.state.auth.uid,
-    });
+    const ownerRelations =
+      await ctx.state.app.userOwnerRelationTable.findByUserId({
+        userId: ctx.state.auth.uid,
+      });
     if (ownerRelations.length === 0) {
       ctx.throw(401, "unauthorized");
       return;
@@ -79,9 +88,10 @@ export const newRouter = (options?: IRouterOptions) => {
       return;
     }
 
-    const ownerRelations = await ctx.state.app.userOwnerRelationTable.findBy({
-      userId: ctx.state.auth.uid,
-    });
+    const ownerRelations =
+      await ctx.state.app.userOwnerRelationTable.findByUserId({
+        userId: ctx.state.auth.uid,
+      });
     if (ownerRelations.length === 0) {
       ctx.throw(401, "unauthorized");
       return;
@@ -109,9 +119,10 @@ export const newRouter = (options?: IRouterOptions) => {
       return;
     }
 
-    const ownerRelations = await ctx.state.app.userOwnerRelationTable.findBy({
-      userId: ctx.state.auth.uid,
-    });
+    const ownerRelations =
+      await ctx.state.app.userOwnerRelationTable.findByUserId({
+        userId: ctx.state.auth.uid,
+      });
     if (ownerRelations.length === 0) {
       ctx.throw(401, "unauthorized");
       return;
@@ -134,6 +145,40 @@ export const newRouter = (options?: IRouterOptions) => {
   });
   router.post("/import/pullRequest/:id", async (ctx) => {
     ctx.body = handlerImportPullRequest(ctx);
+  });
+
+  router.post("/admin/userOwnerRelation", koaBody(), async (ctx) => {
+    const schema = schemaForType<SaveUserOwnerRelationInput>()(
+      z.object({
+        userId: z.string(),
+        owner: z.string(),
+      })
+    );
+    const result = schema.safeParse(ctx.request.body);
+    if (!result.success) {
+      ctx.throw(400, result.error);
+      return;
+    }
+
+    ctx.body = handlerAdminSaveUserOwnerRelation(ctx, result.data);
+  });
+  router.delete("/admin/userOwnerRelation", koaBody(), async (ctx) => {
+    const schema = schemaForType<DeleteUserOwnerRelationInput>()(
+      z.object({
+        userId: z.string(),
+        owner: z.string(),
+      })
+    );
+    const result = schema.safeParse(ctx.request.body);
+    if (!result.success) {
+      ctx.throw(400, result.error);
+      return;
+    }
+
+    ctx.body = handlerAdminDeleteUserOwnerRelation(ctx, result.data);
+  });
+  router.get("/admin/userOwnerRelation", async (ctx) => {
+    ctx.body = await ctx.state.app.userOwnerRelationTable.findAll();
   });
 
   return router;
