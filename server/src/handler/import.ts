@@ -5,6 +5,7 @@ import { getPullRequests } from "../api/pullRequest";
 import { getRepositories } from "../api/repository";
 import dayjs from "dayjs";
 import { PullRequest } from "../../../shared/model/pullRequest";
+import { minBy } from "../helper/array";
 
 export const handlerImportRepository = async (
   ctx: ParameterizedContext<ContextState, Context, unknown>
@@ -126,12 +127,4 @@ export const handlerImportPullRequest = async (
   );
 
   ctx.status = 204;
-};
-
-const minBy = <T>(arr: T[], fn: (v: T) => number) => {
-  return arr.reduce((acc, v) => {
-    const accValue = fn(acc);
-    const vValue = fn(v);
-    return vValue < accValue ? v : acc;
-  });
 };
