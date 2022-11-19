@@ -51,7 +51,7 @@ export const newUserOwnerRelationRepository = (
     },
     delete: async (model: UserOwnerRelation) => {
       const record = UserOwnerRelationTable.fromModel(model);
-      await db.delete([record.owner, record.userId]);
+      await db.delete({ owner: record.owner, userId: record.userId });
     },
   };
 };

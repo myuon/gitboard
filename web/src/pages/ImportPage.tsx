@@ -1,7 +1,9 @@
 import { css } from "@emotion/react";
+import dayjs from "dayjs";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getAuthToken } from "../api/auth";
+import { getAuthToken, useAuthToken } from "../api/auth";
 import { useRepository } from "../api/repository";
+import { useOwnerRelation } from "../api/userOwnerRelation";
 import { sleep } from "../helper/sleep";
 
 const useTaskQueue = (options_: { semaphoreSize: number }) => {
@@ -76,6 +78,9 @@ export const ImportPage = () => {
   const { data: repos } = useRepository();
   const { start, state } = useTaskQueue({ semaphoreSize: 3 });
 
+  const { data: relations, mutate: mutateRelations } = useOwnerRelation();
+  const { data: token } = useAuthToken();
+
   return (
     <div
       css={css`
@@ -128,41 +133,137 @@ export const ImportPage = () => {
             });
           }}
         >
-          IMPORT ALL
+          IMPORT PULL REQUEST
         </button>
       </div>
-      <div
-        css={css`
-          display: grid;
-          gap: 16px;
-        `}
-      >
-        {repos?.map((repo, index) => (
-          <div key={repo.id}>
+      <details>
+        <summary>Repository</summary>
+        <div
+          css={css`
+            display: grid;
+            gap: 16px;
+          `}
+        >
+          {repos?.map((repo, index) => (
+            <div key={repo.id}>
+              <button
+                onClick={async () => {
+                  const resp = await fetch(
+                    `/api/import/pullRequest/${repo.id}`,
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${await getAuthToken()}`,
+                      },
+                    }
+                  );
+                  if (!resp.ok) {
+                    console.error("Failed to import repository");
+                  }
+                }}
+              >
+                IMPORT {repo.name}{" "}
+                {state[index] === true
+                  ? "✅"
+                  : state[index] === false
+                  ? "⏳"
+                  : null}
+              </button>
+            </div>
+          ))}
+        </div>
+      </details>
+
+      <h2>User Owner Relation</h2>
+
+      <div>
+        {relations?.map((relation) => (
+          <div key={`${relation.owner}-${relation.userId}`}>
+            <span
+              css={css`
+                font-weight: 600;
+              `}
+            >
+              {relation.owner}
+            </span>{" "}
+            - {relation.userId} @{" "}
+            {dayjs.unix(relation.createdAt).format("YYYY-MM-DD HH:mm:ss")}
             <button
+              css={css`
+                margin-left: 16px;
+              `}
               onClick={async () => {
-                const resp = await fetch(`/api/import/pullRequest/${repo.id}`, {
+                await fetch("/api/admin/userOwnerRelation/delete", {
                   method: "POST",
                   headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${await getAuthToken()}`,
+                    Authorization: `Bearer ${token}`,
                   },
+                  body: JSON.stringify({
+                    owner: relation.owner,
+                    userId: relation.userId,
+                  }),
                 });
-                if (!resp.ok) {
-                  console.error("Failed to import repository");
-                }
+
+                mutateRelations();
               }}
             >
-              IMPORT {repo.name}{" "}
-              {state[index] === true
-                ? "✅"
-                : state[index] === false
-                ? "⏳"
-                : null}
+              Delete
             </button>
           </div>
         ))}
       </div>
+
+      <form
+        css={css`
+          display: grid;
+          gap: 8px;
+        `}
+        onSubmit={async (event) => {
+          event.preventDefault();
+          const formData = new FormData(event.currentTarget);
+
+          await fetch("/api/admin/userOwnerRelation", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              owner: formData.get("owner") as string,
+              userId: formData.get("userId") as string,
+            }),
+          });
+
+          mutateRelations();
+        }}
+      >
+        <label>
+          owner name:
+          <input
+            name="owner"
+            type="text"
+            css={css`
+              margin-left: 8px;
+              border: 1px solid #aaa;
+            `}
+          />
+        </label>
+        <label>
+          user id:
+          <input
+            name="userId"
+            type="text"
+            css={css`
+              margin-left: 8px;
+              border: 1px solid #aaa;
+            `}
+          />
+        </label>
+
+        <button type="submit">Submit</button>
+      </form>
     </div>
   );
 };

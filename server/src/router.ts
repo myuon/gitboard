@@ -12,6 +12,7 @@ import {
 } from "./handler/import";
 import {
   handlerAdminDeleteUserOwnerRelation,
+  handlerGetUserOwnerRelation,
   handlerAdminSaveUserOwnerRelation,
 } from "./handler/userOwnerRelation";
 import {
@@ -162,13 +163,14 @@ export const newRouter = (options?: IRouterOptions) => {
 
     ctx.body = handlerAdminSaveUserOwnerRelation(ctx, result.data);
   });
-  router.delete("/admin/userOwnerRelation", koaBody(), async (ctx) => {
+  router.post("/admin/userOwnerRelation/delete", koaBody(), async (ctx) => {
     const schema = schemaForType<DeleteUserOwnerRelationInput>()(
       z.object({
         userId: z.string(),
         owner: z.string(),
       })
     );
+    console.log(ctx.request.body);
     const result = schema.safeParse(ctx.request.body);
     if (!result.success) {
       ctx.throw(400, result.error);
@@ -177,8 +179,8 @@ export const newRouter = (options?: IRouterOptions) => {
 
     ctx.body = handlerAdminDeleteUserOwnerRelation(ctx, result.data);
   });
-  router.get("/admin/userOwnerRelation", async (ctx) => {
-    ctx.body = await ctx.state.app.userOwnerRelationTable.findAll();
+  router.get("/userOwnerRelation", async (ctx) => {
+    ctx.body = await handlerGetUserOwnerRelation(ctx);
   });
 
   return router;

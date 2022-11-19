@@ -32,7 +32,11 @@ export const IndexLayout = () => {
           </li>
         </ul>
       </nav>
-      <main>
+      <main
+        css={css`
+          margin-bottom: 80px;
+        `}
+      >
         <Outlet />
       </main>
     </div>

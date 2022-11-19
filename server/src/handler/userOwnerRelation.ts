@@ -46,18 +46,8 @@ export const handlerAdminDeleteUserOwnerRelation = async (
   return null;
 };
 
-export const handlerAdminGetUserOwnerRelation = async (
+export const handlerGetUserOwnerRelation = async (
   ctx: ParameterizedContext<ContextState, Context, unknown>
 ) => {
-  if (ctx.state.auth.uid !== userId) {
-    ctx.throw(401, "unauthorized");
-  }
-
-  const relations = await ctx.state.app.userOwnerRelationTable.findByUserId({
-    userId,
-  });
-
-  ctx.status = 204;
-
-  return relations;
+  return await ctx.state.app.userOwnerRelationTable.findAll();
 };
