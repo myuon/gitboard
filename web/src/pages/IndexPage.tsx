@@ -8,7 +8,7 @@ import { useSearchPullRequest } from "../api/pullRequest";
 export const IndexPage = () => {
   const { data: prs } = useSearchPullRequest({
     createdAtSpan: {
-      start: dayjs().subtract(1, "month").format("YYYY-MM-DD"),
+      start: dayjs().subtract(1, "week").format("YYYY-MM-DD"),
       end: dayjs().format("YYYY-MM-DD"),
     },
   });
@@ -41,7 +41,7 @@ export const IndexPage = () => {
           gap: 16px;
         `}
       >
-        <h2>This Month</h2>
+        <h2>This Week</h2>
 
         <div
           css={css`

@@ -93,33 +93,35 @@ export const UserPage = () => {
           list-style: none;
         `}
       >
-        {prs?.map((pr) => {
-          const repo = repositoryById?.[pr.repositoryId];
+        {prs
+          ?.sort((a, b) => (a.createdAt > b.createdAt ? 1 : -1))
+          .map((pr) => {
+            const repo = repositoryById?.[pr.repositoryId];
 
-          return (
-            <li
-              key={pr.id}
-              css={css`
-                display: grid;
-                gap: 4px;
-              `}
-            >
-              <h3>
-                <a href={pr.url} target="_blank" rel="noreferrer">
-                  #{pr.number}
-                </a>{" "}
-                {pr.title}
-              </h3>
-              <p>
-                {repo?.owner}/{repo?.name}・
-                {dayjs(pr.createdAt).format("YYYY-MM-DD")}・
-                {pr.leadTimeSec
-                  ? `${(pr.leadTimeSec / 60 / 60).toFixed(2)} hrs`
-                  : "Open"}
-              </p>
-            </li>
-          );
-        })}
+            return (
+              <li
+                key={pr.id}
+                css={css`
+                  display: grid;
+                  gap: 4px;
+                `}
+              >
+                <h3>
+                  <a href={pr.url} target="_blank" rel="noreferrer">
+                    #{pr.number}
+                  </a>{" "}
+                  {pr.title}
+                </h3>
+                <p>
+                  {repo?.owner}/{repo?.name}・
+                  {dayjs(pr.createdAt).format("YYYY-MM-DD")}・
+                  {pr.leadTimeSec
+                    ? `${(pr.leadTimeSec / 60 / 60).toFixed(2)} hrs`
+                    : "Open"}
+                </p>
+              </li>
+            );
+          })}
       </ul>
     </div>
   );
