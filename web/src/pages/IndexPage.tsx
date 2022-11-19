@@ -49,24 +49,26 @@ export const IndexPage = () => {
             gap: 8px;
           `}
         >
-          {Object.entries(prByCreatedBy ?? {}).map(([createdBy, prs]) => (
-            <div
-              key={createdBy}
-              css={css`
-                display: grid;
-                gap: 8px;
-              `}
-            >
-              <Link
-                to={`/user/${createdBy}`}
+          {Object.entries(prByCreatedBy ?? {})
+            .sort((a, b) => b[1].length - a[1].length)
+            .map(([createdBy, prs]) => (
+              <div
+                key={createdBy}
                 css={css`
-                  font-weight: bold;
+                  display: grid;
+                  gap: 8px;
                 `}
               >
-                {createdBy} ({prs.length})
-              </Link>
-            </div>
-          ))}
+                <Link
+                  to={`/user/${createdBy}`}
+                  css={css`
+                    font-weight: bold;
+                  `}
+                >
+                  {createdBy} ({prs.length})
+                </Link>
+              </div>
+            ))}
         </div>
       </section>
     </div>
