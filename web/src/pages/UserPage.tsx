@@ -14,7 +14,7 @@ export const UserPage = () => {
   const { data: prs } = useSearchPullRequest({
     createdBy: name,
     createdAtSpan: {
-      start: dayjs().add(-1, "month").format("YYYY-MM-DD"),
+      start: dayjs().add(-1, "week").format("YYYY-MM-DD"),
       end: dayjs().format("YYYY-MM-DD"),
     },
   });
