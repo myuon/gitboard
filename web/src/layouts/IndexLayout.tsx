@@ -1,7 +1,10 @@
 import { css } from "@emotion/react";
 import { Link, Outlet } from "react-router-dom";
+import { useTokenRefresher } from "../api/auth";
 
 export const IndexLayout = () => {
+  useTokenRefresher();
+
   return (
     <div
       css={css`

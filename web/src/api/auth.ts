@@ -8,3 +8,15 @@ export const getAuthToken = async () => {
 export const useAuthToken = () => {
   return useSWR("/token", async () => getAuthToken());
 };
+
+export const useTokenRefresher = () => {
+  useSWR(
+    "/token/refresher",
+    async () => {
+      await getAuthToken();
+    },
+    {
+      refreshInterval: 1000 * 60 * 30,
+    }
+  );
+};
