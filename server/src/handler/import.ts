@@ -1,7 +1,10 @@
 import { Context, ParameterizedContext } from "koa";
 import { ContextState } from "../..";
+import { Commit } from "../../../shared/model/commit";
 import { getPullRequests } from "../api/pullRequest";
 import { getRepositories } from "../api/repository";
+import dayjs from "dayjs";
+import { PullRequest } from "../../../shared/model/pullRequest";
 
 export const handlerImportRepository = async (
   ctx: ParameterizedContext<ContextState, Context, unknown>
@@ -45,11 +48,9 @@ export const handlerImportPullRequest = async (
   });
   if (!repository) {
     ctx.throw(404, "Repository not found");
-    return;
   }
   if (!repository.defaultBranchName) {
     ctx.throw(404, "Repository defaultBranch not found");
-    return;
   }
 
   const prs = await getPullRequests(
@@ -67,7 +68,7 @@ export const handlerImportPullRequest = async (
         return;
       }
 
-      await ctx.state.app.pullRequestTable.save({
+      const prModel: PullRequest = {
         id: pullRequest.id,
         owner: repository.owner,
         repositoryId: repository.id,
@@ -79,15 +80,18 @@ export const handlerImportPullRequest = async (
         closedAt: pullRequest.closedAt,
         createdAt: pullRequest.createdAt,
         updatedAt: pullRequest.updatedAt,
-      });
+        leadTimeSec: undefined,
+      };
+      await ctx.state.app.pullRequestTable.save(prModel);
 
+      const commits: Commit[] = [];
       await Promise.all(
         pullRequest.commits.nodes?.map(async (node) => {
           if (!node || !node.commit.author) {
             return;
           }
 
-          await ctx.state.app.commitTable.save({
+          const commit = {
             id: node.commit.id,
             owner: repository.owner,
             oid: node.commit.oid,
@@ -95,16 +99,39 @@ export const handlerImportPullRequest = async (
             url: node.commit.url,
             committedDate: node.commit.committedDate,
             createdBy: node.commit.author.name ?? "",
-          });
+          };
+          await ctx.state.app.commitTable.save(commit);
 
           await ctx.state.app.commitPullRequestRelationTable.save({
             commitId: node.commit.id,
             pullRequestId: pullRequest.id,
           });
+
+          commits.push(commit);
         }) ?? []
       );
+
+      if (prModel.closedAt) {
+        const earliestCommit = minBy(commits, (commit) =>
+          dayjs(commit.committedDate).unix()
+        );
+
+        prModel.leadTimeSec =
+          dayjs(prModel.closedAt).unix() -
+          dayjs(earliestCommit.committedDate).unix();
+
+        await ctx.state.app.pullRequestTable.save(prModel);
+      }
     }) ?? []
   );
 
   ctx.status = 204;
+};
+
+const minBy = <T>(arr: T[], fn: (v: T) => number) => {
+  return arr.reduce((acc, v) => {
+    const accValue = fn(acc);
+    const vValue = fn(v);
+    return vValue < accValue ? v : acc;
+  });
 };

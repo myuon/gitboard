@@ -10,4 +10,5 @@ export interface PullRequest {
   closedAt?: string;
   createdAt: string;
   updatedAt: string;
+  leadTimeSec?: number;
 }

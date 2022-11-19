@@ -43,6 +43,9 @@ export class PullRequestTable {
   @Column()
   updatedAt: string;
 
+  @Column({ nullable: true })
+  leadTimeSec?: number;
+
   static fromModel(model: PullRequest): PullRequestTable {
     const record = new PullRequestTable();
     record.id = model.id;
@@ -56,6 +59,7 @@ export class PullRequestTable {
     record.closedAt = model.closedAt;
     record.createdAt = model.createdAt;
     record.updatedAt = model.updatedAt;
+    record.leadTimeSec = model.leadTimeSec;
 
     return record;
   }
@@ -73,6 +77,7 @@ export class PullRequestTable {
       closedAt: this.closedAt,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
+      leadTimeSec: this.leadTimeSec,
     };
   }
 }
