@@ -4,6 +4,7 @@ RUN tar -C /usr/local/bin -xzf /tmp/litestream.tar.gz
 WORKDIR /app
 COPY . .
 RUN yarn install --frozen-lockfile
+RUN yarn workspace server codegen
 RUN yarn build
 
 FROM node:19 as deps
