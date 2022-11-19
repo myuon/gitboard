@@ -2,26 +2,36 @@ import { css } from "@emotion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getAuthToken } from "../api/auth";
 import { useRepository } from "../api/repository";
+import { sleep } from "../helper/sleep";
 
 const useTaskQueue = (options_: { semaphoreSize: number }) => {
   const [state, setState] = useState<boolean[]>([]);
-  const [taskQueue, setTaskQueue] = useState<number[]>([]);
-  const [semaphore, setSemaphore] = useState(0);
-  const isRunning = taskQueue.length > 0;
+  const [taskQueue, setTaskQueue] = useState<{
+    queue: number[];
+    semaphore: number;
+  }>({
+    queue: [],
+    semaphore: 0,
+  });
+  const isRunning = taskQueue.queue.length > 0;
   const promise = useRef<(index: number) => Promise<void>>();
   const options = useRef(options_);
 
   const runQueue = useCallback(async () => {
-    if (taskQueue.length === 0) {
+    if (taskQueue.queue.length === 0) {
       return;
     }
-    if (semaphore >= options.current.semaphoreSize) {
+    if (taskQueue.semaphore >= options.current.semaphoreSize) {
       return;
     }
 
-    const [task, ...rest] = taskQueue;
-    setTaskQueue(rest);
-    setSemaphore((p) => p + 1);
+    const [task, ...rest] = taskQueue.queue;
+    setTaskQueue((prev) => {
+      return {
+        queue: rest,
+        semaphore: prev.semaphore + 1,
+      };
+    });
     setState((prev) => {
       const current = [...prev];
       current[task] = false;
@@ -35,8 +45,13 @@ const useTaskQueue = (options_: { semaphoreSize: number }) => {
       current[task] = true;
       return current;
     });
-    setSemaphore((p) => p - 1);
-  }, [promise, semaphore, taskQueue]);
+    setTaskQueue((prev) => {
+      return {
+        queue: prev.queue,
+        semaphore: prev.semaphore - 1,
+      };
+    });
+  }, [taskQueue]);
 
   useEffect(() => {
     if (isRunning) {
@@ -47,7 +62,10 @@ const useTaskQueue = (options_: { semaphoreSize: number }) => {
   return {
     start: (tasks: boolean[], do_: (index: number) => Promise<void>) => {
       setState(tasks);
-      setTaskQueue(tasks.map((_, i) => i));
+      setTaskQueue({
+        queue: tasks.map((_, i) => i),
+        semaphore: 0,
+      });
       promise.current = do_;
     },
     state,
@@ -105,6 +123,8 @@ export const ImportPage = () => {
               if (!resp.ok) {
                 console.error(index, repos[index], await resp.text());
               }
+
+              await sleep(1000);
             });
           }}
         >

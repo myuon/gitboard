@@ -6,6 +6,7 @@ import { getRepositories } from "../api/repository";
 import dayjs from "dayjs";
 import { PullRequest } from "../../../shared/model/pullRequest";
 import { minBy } from "../helper/array";
+import { collectAllSettledresult } from "../helper/promise";
 
 export const handlerImportRepository = async (
   ctx: ParameterizedContext<ContextState, Context, unknown>
@@ -86,7 +87,7 @@ export const handlerImportPullRequest = async (
       await ctx.state.app.pullRequestTable.save(prModel);
 
       const commits: Commit[] = [];
-      await Promise.all(
+      const result = await Promise.allSettled(
         pullRequest.commits.nodes?.map(async (node) => {
           if (!node || !node.commit.author) {
             return;
@@ -111,6 +112,10 @@ export const handlerImportPullRequest = async (
           commits.push(commit);
         }) ?? []
       );
+      const { errors } = collectAllSettledresult(result);
+      if (errors.length > 0) {
+        ctx.log.error(errors);
+      }
 
       if (prModel.closedAt) {
         const earliestCommit = minBy(commits, (commit) =>
