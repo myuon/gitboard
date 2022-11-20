@@ -22,6 +22,10 @@ COPY --from=builder --chown=nonroot:nonroot /app/run.sh /run.sh
 COPY --from=builder --chown=nonroot:nonroot /usr/local/bin/litestream /usr/local/bin/litestream
 COPY --from=deps --chown=nonroot:nonroot /app/node_modules ./node_modules
 
+# .secrets
+COPY --from=builder --chown=nonroot:nonroot /app/.secrets ./.secrets
+ENV GOOGLE_APPLICATION_CREDENTIALS ./.secrets/serviceaccountkey.json
+
 # cf: https://stackoverflow.com/questions/61039877/add-shell-or-bash-to-a-docker-image-distroless-based-on-debian-gnu-linux
 COPY --from=busybox:1.35.0-uclibc /bin/sh /bin/sh
 COPY --from=busybox:1.35.0-uclibc /bin/mv /bin/mv
