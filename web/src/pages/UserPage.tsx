@@ -4,8 +4,8 @@ import { useParams } from "react-router-dom";
 import { Repository } from "../../../shared/model/repository";
 import { useSearchPullRequest } from "../api/pullRequest";
 import { useSearchRepository } from "../api/repository";
-import { median } from "../helper/array";
 import { assertIsDefined } from "../helper/assertIsDefined";
+import { summaryOfActivity } from "../../../shared/model/pullRequest";
 
 export const UserPage = () => {
   const { name } = useParams<{ name: string }>();
@@ -18,6 +18,8 @@ export const UserPage = () => {
       end: dayjs().format("YYYY-MM-DD"),
     },
   });
+  const summary = prs ? summaryOfActivity(prs) : undefined;
+
   const { data: repos } = useSearchRepository({
     ids: prs?.map((pr) => pr.repositoryId) ?? [],
   });
@@ -54,7 +56,7 @@ export const UserPage = () => {
               font-weight: 500;
             `}
           >
-            {prs?.length}
+            {summary?.count}
           </span>
         </div>
 
@@ -71,17 +73,7 @@ export const UserPage = () => {
               font-weight: 500;
             `}
           >
-            {prs
-              ? (
-                  median(
-                    prs
-                      .filter((p) => p.state === "MERGED")
-                      .map((p) => p.leadTimeSec) as number[]
-                  ) /
-                  60 /
-                  60
-                ).toFixed(2)
-              : null}
+            {summary?.leadTimeMedian.toFixed(2)}
           </span>
         </div>
       </div>
