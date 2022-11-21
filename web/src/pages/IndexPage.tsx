@@ -9,11 +9,12 @@ import { useSearchPullRequest } from "../api/pullRequest";
 export const IndexPage = () => {
   useAuthGuard();
 
+  const span = {
+    start: dayjs().subtract(1, "week").format("YYYY-MM-DD"),
+    end: dayjs().format("YYYY-MM-DD"),
+  };
   const { data: prs } = useSearchPullRequest({
-    createdAtSpan: {
-      start: dayjs().subtract(1, "week").format("YYYY-MM-DD"),
-      end: dayjs().format("YYYY-MM-DD"),
-    },
+    createdAtSpan: span,
   });
 
   const prByCreatedBy = useMemo(
@@ -44,7 +45,9 @@ export const IndexPage = () => {
           gap: 16px;
         `}
       >
-        <h2>This Week</h2>
+        <h2>
+          This Week ({span.start} - {span.end})
+        </h2>
 
         <div
           css={css`

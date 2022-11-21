@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { Repository } from "../../../shared/model/repository";
 import { useSearchPullRequest } from "../api/pullRequest";
 import { useSearchRepository } from "../api/repository";
-import { average, median } from "../helper/array";
+import { median } from "../helper/array";
 import { assertIsDefined } from "../helper/assertIsDefined";
 
 export const UserPage = () => {
