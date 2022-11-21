@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { Repository } from "../../../shared/model/repository";
 import { useSearchPullRequest } from "../api/pullRequest";
 import { useSearchRepository } from "../api/repository";
-import { average } from "../helper/array";
+import { average, median } from "../helper/array";
 import { assertIsDefined } from "../helper/assertIsDefined";
 
 export const UserPage = () => {
@@ -64,7 +64,7 @@ export const UserPage = () => {
             gap: 8px;
           `}
         >
-          <span>Lead time (hrs, avg)</span>
+          <span>Lead time (hrs, median)</span>
           <span
             css={css`
               font-size: 28px;
@@ -73,9 +73,9 @@ export const UserPage = () => {
           >
             {prs
               ? (
-                  average(
+                  median(
                     prs
-                      .filter((p) => Boolean(p.leadTimeSec))
+                      .filter((p) => p.state === "MERGED")
                       .map((p) => p.leadTimeSec) as number[]
                   ) /
                   60 /
