@@ -45,24 +45,6 @@ export const newRouter = (options?: IRouterOptions) => {
     ctx.body = result.data.message;
   });
 
-  router.post("/userOwnerRelation", koaBody(), async (ctx) => {
-    interface Input {
-      userId: string;
-      owner: string;
-    }
-    const schema = schemaForType<Input>()(
-      z.object({
-        userId: z.string(),
-        owner: z.string(),
-      })
-    );
-    const result = schema.safeParse(ctx.request.body);
-    if (!result.success) {
-      ctx.throw(400, result.error);
-      return;
-    }
-  });
-
   router.get("/repository", async (ctx) => {
     const ownerRelations =
       await ctx.state.app.userOwnerRelationTable.findByUserId({
@@ -142,10 +124,10 @@ export const newRouter = (options?: IRouterOptions) => {
   });
 
   router.post("/import/repository", async (ctx) => {
-    ctx.body = handlerImportRepository(ctx);
+    ctx.body = await handlerImportRepository(ctx);
   });
   router.post("/import/pullRequest/:id", async (ctx) => {
-    ctx.body = handlerImportPullRequest(ctx);
+    ctx.body = await handlerImportPullRequest(ctx);
   });
 
   router.post("/admin/userOwnerRelation", koaBody(), async (ctx) => {
@@ -161,7 +143,7 @@ export const newRouter = (options?: IRouterOptions) => {
       return;
     }
 
-    ctx.body = handlerAdminSaveUserOwnerRelation(ctx, result.data);
+    ctx.body = await handlerAdminSaveUserOwnerRelation(ctx, result.data);
   });
   router.post("/admin/userOwnerRelation/delete", koaBody(), async (ctx) => {
     const schema = schemaForType<DeleteUserOwnerRelationInput>()(
@@ -170,14 +152,13 @@ export const newRouter = (options?: IRouterOptions) => {
         owner: z.string(),
       })
     );
-    console.log(ctx.request.body);
     const result = schema.safeParse(ctx.request.body);
     if (!result.success) {
       ctx.throw(400, result.error);
       return;
     }
 
-    ctx.body = handlerAdminDeleteUserOwnerRelation(ctx, result.data);
+    ctx.body = await handlerAdminDeleteUserOwnerRelation(ctx, result.data);
   });
   router.get("/userOwnerRelation", async (ctx) => {
     ctx.body = await handlerGetUserOwnerRelation(ctx);
