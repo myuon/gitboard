@@ -80,7 +80,7 @@ export const IndexPage = () => {
           </thead>
           <tbody>
             {Object.entries(prByCreatedBy ?? {})
-              .sort((a, b) => b[1].length - a[1].length)
+              .sort((a, b) => (a[0] > b[0] ? 1 : -1))
               .map(([createdBy, prs]) => {
                 const summary = summaryOfActivity(prs);
 
