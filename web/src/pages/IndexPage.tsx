@@ -2,6 +2,7 @@ import { css } from "@emotion/react";
 import dayjs from "dayjs";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
+import { hoursMins } from "../../../shared/helper/time";
 import {
   PullRequest,
   summaryOfActivity,
@@ -140,7 +141,7 @@ export const IndexPage = () => {
                     </span>
                   </td>
                   <td>
-                    {item.summary.leadTimeMedian.toFixed(2)} hrs{" "}
+                    {hoursMins(item.summary.leadTimeMedian)}
                     <span
                       css={css`
                         margin-left: 4px;

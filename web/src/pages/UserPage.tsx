@@ -6,6 +6,7 @@ import { useSearchPullRequest } from "../api/pullRequest";
 import { useSearchRepository } from "../api/repository";
 import { assertIsDefined } from "../helper/assertIsDefined";
 import { summaryOfActivity } from "../../../shared/model/pullRequest";
+import { hoursMins } from "../../../shared/helper/time";
 
 export const UserPage = () => {
   const { name } = useParams<{ name: string }>();
@@ -66,14 +67,14 @@ export const UserPage = () => {
             gap: 8px;
           `}
         >
-          <span>Lead time (hrs, median)</span>
+          <span>Lead time (median)</span>
           <span
             css={css`
               font-size: 28px;
               font-weight: 500;
             `}
           >
-            {summary?.leadTimeMedian.toFixed(2)}
+            {summary ? hoursMins(summary.leadTimeMedian) : "-"}
           </span>
         </div>
       </div>

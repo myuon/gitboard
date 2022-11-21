@@ -1,4 +1,5 @@
 import { median } from "../helper/array";
+import { hoursMins } from "../helper/time";
 
 export interface PullRequest {
   id: string;
@@ -18,13 +19,10 @@ export interface PullRequest {
 export const summaryOfActivity = (prs: PullRequest[]) => {
   return {
     count: prs.length,
-    leadTimeMedian:
-      median(
-        prs
-          .filter((p) => p.state === "MERGED")
-          .map((p) => p.leadTimeSec) as number[]
-      ) /
-      60 /
-      60,
+    leadTimeMedian: median(
+      prs
+        .filter((p) => p.state === "MERGED")
+        .map((p) => p.leadTimeSec) as number[]
+    ),
   };
 };
