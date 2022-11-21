@@ -32,6 +32,37 @@ export const IndexPage = () => {
       }, {} as Record<string, PullRequest[]>),
     [prs]
   );
+  const prAuthorSummary = useMemo(() => {
+    if (!prByCreatedBy) {
+      return undefined;
+    }
+
+    const result = Object.entries(prByCreatedBy).map(([name, prs]) => {
+      return {
+        name,
+        prs,
+        summary: summaryOfActivity(prs),
+      };
+    });
+    result.sort((a, b) => (a.name > b.name ? 1 : -1));
+
+    return result;
+  }, [prByCreatedBy]);
+  const sortByCount = useMemo(
+    () =>
+      [...(prAuthorSummary ?? [])]?.sort(
+        (a, b) => (b.summary?.count ?? 0) - (a.summary?.count ?? 0)
+      ),
+    [prAuthorSummary]
+  );
+  const sortByLeadTime = useMemo(
+    () =>
+      [...(prAuthorSummary ?? [])]?.sort(
+        (a, b) =>
+          (a.summary?.leadTimeMedian ?? 0) - (b.summary?.leadTimeMedian ?? 0)
+      ),
+    [prAuthorSummary]
+  );
 
   return (
     <div
@@ -79,28 +110,54 @@ export const IndexPage = () => {
             </tr>
           </thead>
           <tbody>
-            {Object.entries(prByCreatedBy ?? {})
-              .sort((a, b) => (a[0] > b[0] ? 1 : -1))
-              .map(([createdBy, prs]) => {
-                const summary = summaryOfActivity(prs);
-
-                return (
-                  <tr key={createdBy}>
-                    <td>
-                      <Link
-                        to={`/user/${createdBy}`}
-                        css={css`
-                          font-weight: bold;
-                        `}
-                      >
-                        {createdBy}
-                      </Link>
-                    </td>
-                    <td>{summary.count}</td>
-                    <td>{summary.leadTimeMedian.toFixed(2)} hrs</td>
-                  </tr>
-                );
-              })}
+            {prAuthorSummary?.map((item) => {
+              return (
+                <tr key={item.name}>
+                  <td>
+                    <Link
+                      to={`/user/${item.name}`}
+                      css={css`
+                        font-weight: bold;
+                      `}
+                    >
+                      {item.name}
+                    </Link>
+                  </td>
+                  <td>
+                    {item.summary.count}
+                    <span
+                      css={css`
+                        margin-left: 4px;
+                      `}
+                    >
+                      {item.name === sortByCount[0].name
+                        ? "🥇"
+                        : item.name === sortByCount[1].name
+                        ? "🥈"
+                        : item.name === sortByCount[2].name
+                        ? "🥉"
+                        : ""}
+                    </span>
+                  </td>
+                  <td>
+                    {item.summary.leadTimeMedian.toFixed(2)} hrs{" "}
+                    <span
+                      css={css`
+                        margin-left: 4px;
+                      `}
+                    >
+                      {item.name === sortByLeadTime[0].name
+                        ? "🥇"
+                        : item.name === sortByLeadTime[1].name
+                        ? "🥈"
+                        : item.name === sortByLeadTime[2].name
+                        ? "🥉"
+                        : ""}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </section>
