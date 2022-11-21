@@ -17,7 +17,7 @@ export const handlerAdminSaveUserOwnerRelation = async (
   }
 
   await ctx.state.app.userOwnerRelationTable.save({
-    userId,
+    userId: input.userId,
     owner: input.owner,
     createdAt: dayjs().unix(),
   });
