@@ -115,9 +115,9 @@ export const UserPage = () => {
                 <p>
                   {repo?.owner}/{repo?.name}・
                   {dayjs(pr.createdAt).format("YYYY-MM-DD")}・
-                  {pr.leadTimeSec
-                    ? `${(pr.leadTimeSec / 60 / 60).toFixed(2)} hrs`
-                    : "Open"}
+                  {pr.state === "MERGED"
+                    ? `${((pr.leadTimeSec ?? 0) / 60 / 60).toFixed(2)} hrs`
+                    : pr.state}
                 </p>
               </li>
             );
