@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import useSWR from "swr";
 import { auth } from "./firebase";
 
@@ -18,14 +20,15 @@ export const useAuthToken = () => {
   return useSWR("/token", async () => getAuthToken());
 };
 
-export const useTokenRefresher = () => {
-  useSWR(
-    "/token/refresher",
-    async () => {
-      await getAuthToken();
-    },
-    {
-      refreshInterval: 1000 * 60 * 30,
-    }
-  );
+export const useAuthGuard = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    void (async () => {
+      const token = await getAuthToken();
+      if (!token) {
+        navigate("/login");
+      }
+    })();
+  }, [navigate]);
 };

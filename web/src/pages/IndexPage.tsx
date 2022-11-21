@@ -3,9 +3,12 @@ import dayjs from "dayjs";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { PullRequest } from "../../../shared/model/pullRequest";
+import { useAuthGuard } from "../api/auth";
 import { useSearchPullRequest } from "../api/pullRequest";
 
 export const IndexPage = () => {
+  useAuthGuard();
+
   const { data: prs } = useSearchPullRequest({
     createdAtSpan: {
       start: dayjs().subtract(1, "week").format("YYYY-MM-DD"),
