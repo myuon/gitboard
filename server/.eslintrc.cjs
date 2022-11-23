@@ -15,6 +15,10 @@ module.exports = {
   plugins: ["@typescript-eslint"],
   rules: {
     "@typescript-eslint/no-floating-promises": "error",
+    "@typescript-eslint/strict-boolean-expressions": [
+      "error",
+      { allowNumber: false, allowString: true, allowNullableString: true },
+    ],
   },
   ignorePatterns: [".eslintrc.cjs", "src/generated"],
 };

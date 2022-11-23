@@ -7,7 +7,7 @@ export const getAuthToken = async () => {
   if (auth.currentUser) {
     return auth.currentUser.getIdToken();
   } else {
-    return await new Promise((resolve) => {
+    return await new Promise<string | undefined>((resolve) => {
       const unsubscribe = auth.onAuthStateChanged(async (user) => {
         unsubscribe();
         resolve(user?.getIdToken());

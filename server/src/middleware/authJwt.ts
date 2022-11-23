@@ -21,7 +21,7 @@ export const authJwt =
   };
 
 export const requireAuth =
-  (): Middleware<{ auth: DecodedIdToken }, Context> => async (ctx, next) => {
+  (): Middleware<{ auth?: DecodedIdToken }, Context> => async (ctx, next) => {
     if (!ctx.state.auth) {
       ctx.throw(401, "Unauthorized");
     }

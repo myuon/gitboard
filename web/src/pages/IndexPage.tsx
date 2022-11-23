@@ -24,7 +24,7 @@ export const IndexPage = () => {
   const prByCreatedBy = useMemo(
     () =>
       prs?.reduce((acc, pr) => {
-        if (!acc[pr.createdBy]) {
+        if (!(pr.createdBy in acc)) {
           acc[pr.createdBy] = [];
         }
 
