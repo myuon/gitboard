@@ -63,7 +63,6 @@ export const handlerImportPullRequest = async (
     repository.defaultBranchName,
     null
   );
-  const endCursor = prs.repository?.pullRequests.pageInfo.endCursor;
 
   await Promise.all(
     prs.repository?.pullRequests.nodes?.map(async (pullRequest) => {
@@ -148,6 +147,13 @@ export const handlerImportScheduled = async (
   }
 
   const target = relations[0];
+  const owner = target.owner;
+
+  const latest = await ctx.state.app.scheduleTable.findLatest(owner);
+  if (latest && dayjs().diff(dayjs.unix(latest.createdAt), "minute") <= 30) {
+    ctx.throw(429, "Too many requests");
+  }
+
   const scheduleId = ulid();
 
   await ctx.state.app.scheduleTable.create({

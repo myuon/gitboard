@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryColumn, Repository } from "typeorm";
+import { Column, Entity, Equal, PrimaryColumn, Repository } from "typeorm";
 import { Schedule } from "../../../shared/model/schedule";
 
 @Entity()
@@ -37,6 +37,9 @@ export class ScheduleTable {
 
 export const newScheduleRepository = (db: Repository<ScheduleTable>) => {
   return {
+    findLatest: async (owner: string) => {
+      return db.findOne({ where: { owner }, order: { createdAt: "DESC" } });
+    },
     create: async (model: Schedule) => {
       return db.insert(ScheduleTable.fromModel(model));
     },
