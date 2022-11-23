@@ -2,7 +2,7 @@ import "reflect-metadata";
 import Koa, { Context } from "koa";
 import logger from "koa-pino-logger";
 import * as path from "path";
-import { authJwt, requireAuth } from "./src/middleware/authJwt";
+import { authJwt } from "./src/middleware/authJwt";
 import { serveStaticProd } from "./src/middleware/serve";
 import { newRouter } from "./src/router";
 import * as admin from "firebase-admin";
@@ -81,7 +81,6 @@ app.use(
 );
 
 app.use(authJwt(auth));
-app.use(requireAuth());
 app.use(async (ctx, next) => {
   ctx.state.app = {
     userOwnerRelationTable,

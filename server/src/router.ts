@@ -24,27 +24,14 @@ import {
 export const newRouter = (options?: IRouterOptions) => {
   const router = new Router<ContextState>(options);
 
-  router.get("/hello", async (ctx) => {
-    ctx.body = "Hello World!";
-  });
-  router.post("/echo", requireAuth(), koaBody(), async (ctx) => {
-    interface EchoInput {
-      message: string;
-    }
+  // = No auth section
 
-    const schema = schemaForType<EchoInput>()(
-      z.object({
-        message: z.string(),
-      })
-    );
-    const result = schema.safeParse(ctx.request.body);
-    if (!result.success) {
-      ctx.throw(400, result.error);
-      return;
-    }
-
-    ctx.body = result.data.message;
+  router.post("/import/scheduled", async (ctx) => {
+    ctx.body = await handlerImportScheduled(ctx);
   });
+
+  // = Require auth section
+  router.use(requireAuth());
 
   router.get("/repository", async (ctx) => {
     const ownerRelations =
@@ -129,9 +116,6 @@ export const newRouter = (options?: IRouterOptions) => {
   });
   router.post("/import/pullRequest/:id", async (ctx) => {
     ctx.body = await handlerImportPullRequest(ctx);
-  });
-  router.post("/import/scheduled", async (ctx) => {
-    ctx.body = await handlerImportScheduled(ctx);
   });
 
   router.post("/admin/userOwnerRelation", koaBody(), async (ctx) => {

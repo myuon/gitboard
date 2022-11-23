@@ -153,7 +153,9 @@ export const handlerImportScheduled = async (
   await ctx.state.app.scheduleTable.create({
     id: scheduleId,
     owner: target.owner,
-    title: `Imported by ${ctx.state.auth.uid}`,
+    title: "sync",
     createdAt: dayjs().unix(),
   });
+
+  return "ok";
 };

@@ -38,7 +38,7 @@ export class ScheduleTable {
 export const newScheduleRepository = (db: Repository<ScheduleTable>) => {
   return {
     create: async (model: Schedule) => {
-      return db.create(ScheduleTable.fromModel(model));
+      return db.insert(ScheduleTable.fromModel(model));
     },
   };
 };
