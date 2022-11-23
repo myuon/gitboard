@@ -1,4 +1,4 @@
-import { Column, Entity, Equal, PrimaryColumn, Repository } from "typeorm";
+import { Column, Entity, PrimaryColumn, Repository } from "typeorm";
 import { Schedule } from "../../../shared/model/schedule";
 
 @Entity()

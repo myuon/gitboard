@@ -107,4 +107,4 @@ const start = async () => {
   console.log(`✨ Server running on http://localhost:3000`);
 };
 
-start();
+void start();
