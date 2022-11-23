@@ -7,6 +7,7 @@ import dayjs from "dayjs";
 import { PullRequest } from "../../../shared/model/pullRequest";
 import { minBy } from "../helper/array";
 import { collectAllSettledresult } from "../helper/promise";
+import { ulid } from "ulid";
 
 export const handlerImportRepository = async (
   ctx: ParameterizedContext<ContextState, Context, unknown>
@@ -132,4 +133,27 @@ export const handlerImportPullRequest = async (
   );
 
   ctx.status = 204;
+};
+
+const userId = "224NHwAGI5QjUi0fJj5CUwujO0L2";
+
+export const handlerImportScheduled = async (
+  ctx: ParameterizedContext<ContextState, Context, unknown>
+) => {
+  const relations = await ctx.state.app.userOwnerRelationTable.findByUserId({
+    userId,
+  });
+  if (relations.length === 0) {
+    ctx.throw(404, "UserOwnerRelation not found");
+  }
+
+  const target = relations[0];
+  const scheduleId = ulid();
+
+  await ctx.state.app.scheduleTable.create({
+    id: scheduleId,
+    owner: target.owner,
+    title: `Imported by ${ctx.state.auth.uid}`,
+    createdAt: dayjs().unix(),
+  });
 };

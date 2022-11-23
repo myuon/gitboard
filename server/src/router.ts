@@ -9,6 +9,7 @@ import { SearchRepositoryInput } from "../../shared/request/repository";
 import {
   handlerImportPullRequest,
   handlerImportRepository,
+  handlerImportScheduled,
 } from "./handler/import";
 import {
   handlerAdminDeleteUserOwnerRelation,
@@ -128,6 +129,9 @@ export const newRouter = (options?: IRouterOptions) => {
   });
   router.post("/import/pullRequest/:id", async (ctx) => {
     ctx.body = await handlerImportPullRequest(ctx);
+  });
+  router.post("/import/scheduled", async (ctx) => {
+    ctx.body = await handlerImportScheduled(ctx);
   });
 
   router.post("/admin/userOwnerRelation", koaBody(), async (ctx) => {

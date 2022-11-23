@@ -17,6 +17,7 @@
     "reflect-metadata": "^0.1.13",
     "sqlite3": "^5.1.2",
     "typeorm": "^0.3.10",
+    "ulid": "^2.3.0",
     "zod": "^3.19.1"
   },
   "devDependencies": {

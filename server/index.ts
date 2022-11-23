@@ -21,6 +21,7 @@ import {
   CommitPullRequestRelationTable,
   newCommitPullRequestRelationRepository,
 } from "./src/db/commitPullRequestRelation";
+import { newScheduleRepository, ScheduleTable } from "./src/db/schedule";
 
 const dataSource = new DataSource({
   type: "sqlite",
@@ -31,6 +32,7 @@ const dataSource = new DataSource({
     PullRequestTable,
     CommitTable,
     CommitPullRequestRelationTable,
+    ScheduleTable,
   ],
   logging: true,
   synchronize: true,
@@ -48,6 +50,9 @@ const commitTable = newCommitRepository(dataSource.getRepository(CommitTable));
 const commitPullRequestRelationTable = newCommitPullRequestRelationRepository(
   dataSource.getRepository(CommitPullRequestRelationTable)
 );
+const scheduleTable = newScheduleRepository(
+  dataSource.getRepository(ScheduleTable)
+);
 
 export interface ContextState {
   auth: admin.auth.DecodedIdToken;
@@ -57,6 +62,7 @@ export interface ContextState {
     pullRequestTable: typeof pullRequestTable;
     commitTable: typeof commitTable;
     commitPullRequestRelationTable: typeof commitPullRequestRelationTable;
+    scheduleTable: typeof scheduleTable;
   };
 }
 
@@ -83,6 +89,7 @@ app.use(async (ctx, next) => {
     pullRequestTable,
     commitTable,
     commitPullRequestRelationTable,
+    scheduleTable,
   };
 
   await next();
