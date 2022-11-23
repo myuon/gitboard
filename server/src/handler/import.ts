@@ -8,6 +8,8 @@ import { PullRequest } from "../../../shared/model/pullRequest";
 import { minBy } from "../helper/array";
 import { collectAllSettledresult } from "../helper/promise";
 import { ulid } from "ulid";
+import { Repository } from "../../../shared/model/repository";
+import { sleep } from "../../../shared/helper/sleep";
 
 export const handlerImportRepository = async (
   ctx: ParameterizedContext<ContextState, Context, unknown>
@@ -43,15 +45,10 @@ export const handlerImportRepository = async (
   return null;
 };
 
-export const handlerImportPullRequest = async (
-  ctx: ParameterizedContext<ContextState, Context, unknown>
+const importPullRequest = async (
+  ctx: ParameterizedContext<ContextState, Context, unknown>,
+  repository: Repository
 ) => {
-  const repository = await ctx.state.app.repositoryTable.findOneBy({
-    id: ctx.params.id,
-  });
-  if (!repository) {
-    ctx.throw(404, "Repository not found");
-  }
   if (!repository.defaultBranchName) {
     ctx.throw(404, "Repository defaultBranch not found");
   }
@@ -130,6 +127,19 @@ export const handlerImportPullRequest = async (
       }
     }) ?? []
   );
+};
+
+export const handlerImportPullRequest = async (
+  ctx: ParameterizedContext<ContextState, Context, unknown>
+) => {
+  const repository = await ctx.state.app.repositoryTable.findOneBy({
+    id: ctx.params.id,
+  });
+  if (!repository) {
+    ctx.throw(404, "Repository not found");
+  }
+
+  await importPullRequest(ctx, repository);
 
   ctx.status = 204;
 };
@@ -150,11 +160,37 @@ export const handlerImportScheduled = async (
   const owner = target.owner;
 
   const latest = await ctx.state.app.scheduleTable.findLatest(owner);
-  if (latest && dayjs().diff(dayjs.unix(latest.createdAt), "minute") <= 30) {
+  if (
+    latest !== null &&
+    dayjs().diff(dayjs.unix(latest.createdAt), "minute") <= 30
+  ) {
     ctx.throw(429, "Too many requests");
   }
 
   const scheduleId = ulid();
+
+  const repositories = await ctx.state.app.repositoryTable.findBy({
+    owner: [owner],
+  });
+
+  const promises = repositories.map((repository) => async () => {
+    ctx.log.info(`start import ${repository.name}`);
+    return importPullRequest(ctx, repository);
+  });
+
+  const result = [];
+  while (promises.length > 0) {
+    result.push(
+      ...(await Promise.allSettled(promises.splice(0, 3).map((p) => p())))
+    );
+
+    await sleep(1500);
+  }
+
+  const { errors } = collectAllSettledresult(result);
+  if (errors.length > 0) {
+    ctx.log.error(errors);
+  }
 
   await ctx.state.app.scheduleTable.create({
     id: scheduleId,
