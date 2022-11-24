@@ -81,7 +81,6 @@ export const IndexPage = () => {
         {lastSchedule
           ? `Last synced at ${dayjs
               .unix(lastSchedule.createdAt)
-              .add(9, "hour")
               .format("YYYY/MM/DD HH:mm:ss")}`
           : "No data"}
       </p>
