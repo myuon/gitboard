@@ -9,6 +9,7 @@ import {
 } from "../../../shared/model/pullRequest";
 import { useAuthGuard } from "../api/auth";
 import { useSearchPullRequest } from "../api/pullRequest";
+import { useSchedule as useLastSchedule } from "../api/schedule";
 
 export const IndexPage = () => {
   useAuthGuard();
@@ -65,6 +66,8 @@ export const IndexPage = () => {
     [prAuthorSummary]
   );
 
+  const { data: lastSchedule } = useLastSchedule();
+
   return (
     <div
       css={css`
@@ -73,6 +76,15 @@ export const IndexPage = () => {
       `}
     >
       <h1>GitBoard</h1>
+
+      <p>
+        {lastSchedule
+          ? `Last synced at ${dayjs
+              .unix(lastSchedule.createdAt)
+              .add(9, "hour")
+              .format("YYYY/MM/DD HH:mm:ss")}`
+          : "No data"}
+      </p>
 
       <section
         css={css`

@@ -161,7 +161,7 @@ export const handlerImportScheduled = async (
 
   const latest = await ctx.state.app.scheduleTable.findLatest(owner);
   if (
-    latest !== null &&
+    latest !== undefined &&
     dayjs().diff(dayjs.unix(latest.createdAt), "minute") <= 30
   ) {
     ctx.throw(429, "Too many requests");

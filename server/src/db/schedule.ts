@@ -38,7 +38,12 @@ export class ScheduleTable {
 export const newScheduleRepository = (db: Repository<ScheduleTable>) => {
   return {
     findLatest: async (owner: string) => {
-      return db.findOne({ where: { owner }, order: { createdAt: "DESC" } });
+      const record = await db.findOne({
+        where: { owner },
+        order: { createdAt: "DESC" },
+      });
+
+      return record?.toModel();
     },
     create: async (model: Schedule) => {
       return db.insert(ScheduleTable.fromModel(model));

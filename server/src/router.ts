@@ -20,6 +20,7 @@ import {
   DeleteUserOwnerRelationInput,
   SaveUserOwnerRelationInput,
 } from "../../shared/request/userOwnerRelation";
+import { handlerGetLastSchedule } from "./handler/schedule";
 
 export const newRouter = (options?: IRouterOptions) => {
   const router = new Router<ContextState>(options);
@@ -109,6 +110,10 @@ export const newRouter = (options?: IRouterOptions) => {
     });
 
     ctx.body = pullRequests;
+  });
+
+  router.get("/schedule/last", async (ctx) => {
+    ctx.body = await handlerGetLastSchedule(ctx);
   });
 
   router.post("/import/repository", async (ctx) => {
